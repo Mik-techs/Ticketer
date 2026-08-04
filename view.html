@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Print Order — View</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;color:#111;padding:18px}
+    .wrap{max-width:720px;margin:0 auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .meta{color:#6b7280}
+    button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#0066ff;color:#fff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Order ticket</h2>
+    <div id="content">Loading…</div>
+  </div>
+
+  <script>
+    function qs(key){
+      const u = new URL(location.href);
+      return u.searchParams.get(key);
+    }
+
+    const id = qs('id');
+    const content = document.getElementById('content');
+
+    if (!id) {
+      content.textContent = 'No ticket id provided.';
+      throw new Error('no id');
+    }
+
+    async function load(){
+      try {
+        const res = await fetch(`/api/get-order?id=${encodeURIComponent(id)}`);
+        if (!res.ok) throw new Error('Order not found');
+        const j = await res.json();
+        const o = j.order;
+
+        // render safely
+        const el = document.createElement('div');
+        const make = (k,v) => `<div><strong>${k}:</strong> ${v}</div>`;
+        el.innerHTML = `
+          <div class="meta">Ticket ID: ${id}</div>
+          <h3>${escapeHtml(o.item || '')}</h3>
+          <div>${make('Copies', escapeHtml(String(o.copies || '')))}</div>
+          <div>${make('Color', escapeHtml(o.color || ''))}</div>
+          <div>${make('Paper', escapeHtml(o.paper || ''))}</div>
+          <div>${make('Finishing', escapeHtml(o.finishing || ''))}</div>
+          <div>${make('Name', escapeHtml(o.name || ''))}</div>
+          <div>${make('Uploaded file', o.fileUrl ? '<a id="dl" href="'+escapeAttr(o.fileUrl)+'" target="_blank">Download file</a>' : 'No file')}</div>
+          <div class="meta">Status: ${escapeHtml(o.status || 'pending')}</div>
+        `;
+        content.innerHTML='';
+        content.appendChild(el);
+      } catch (err) {
+        console.error(err);
+        content.textContent = 'Could not load ticket: ' + err.message;
+      }
+    }
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escapeAttr(s){ return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+    load();
+  </script>
+</body>
+</html>

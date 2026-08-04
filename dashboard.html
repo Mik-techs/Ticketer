@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Orders Dashboard</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;color:#111;padding:18px}
+    .wrap{max-width:960px;margin:0 auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .order{padding:8px;border-bottom:1px solid #eef2f7;display:flex;justify-content:space-between;align-items:center}
+    .small{font-size:13px;color:#6b7280}
+    .tabs{display:flex;gap:8px;margin-bottom:10px}
+    button{padding:8px 12px;border-radius:6px;border:0;background:#0066ff;color:#fff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Orders</h2>
+    <div id="auth">
+      <label>Enter PIN to view dashboard <input id="pin" type="password"/> <button id="login">Unlock</button></label>
+      <div class="small">This PIN is checked server-side. Do not share it.</div>
+    </div>
+
+    <div id="ui" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="tabs">
+          <button id="allBtn">All</button>
+          <button id="pendingBtn">Pending</button>
+          <button id="completedBtn">Completed</button>
+        </div>
+        <div>
+          <button id="refresh">Refresh</button>
+        </div>
+      </div>
+      <div id="list" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <script>
+    const auth = document.getElementById('auth');
+    const ui = document.getElementById('ui');
+    const pinInput = document.getElementById('pin');
+    const loginBtn = document.getElementById('login');
+    const listEl = document.getElementById('list');
+    const refreshBtn = document.getElementById('refresh');
+
+    let adminToken = null;
+    let orders = {};
+    let filter = 'all';
+
+    loginBtn.addEventListener('click', () => {
+      const p = pinInput.value.trim();
+      if (!p) return alert('Enter PIN');
+      adminToken = p; // sent as x-admin-token to server
+      sessionStorage.setItem('adminToken', adminToken);
+      showUI();
+      load();
+    });
+
+    function showUI(){ auth.style.display='none'; ui.style.display='block'; }
+    window.addEventListener('load', ()=>{
+      const saved = sessionStorage.getItem('adminToken');
+      if (saved){ adminToken = saved; showUI(); load(); }
+    });
+
+    async function load(){
+      try{
+        listEl.innerHTML='Loading...';
+        const res = await fetch('/api/list-orders', { headers: { 'x-admin-token': adminToken }});
+        if (!res.ok) throw new Error('Unauthorized or failed');
+        const j = await res.json();
+        orders = j.orders || {};
+        render();
+      }catch(err){
+        console.error(err);
+        alert('Could not load orders: ' + err.message);
+        sessionStorage.removeItem('adminToken');
+        auth.style.display='block'; ui.style.display='none';
+      }
+    }
+
+    function render(){
+      const arr = Object.values(orders).sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+      let shown = arr;
+      if (filter === 'pending') shown = arr.filter(o=>o.status==='pending');
+      if (filter === 'completed') shown = arr.filter(o=>o.status==='completed');
+
+      if (shown.length === 0) { listEl.innerHTML = '<div class="small">No orders.</div>'; return; }
+      listEl.innerHTML = shown.map(o => `
+        <div class="order" data-id="${encodeURIComponent(o.id)}">
+          <div>
+            <div><strong>${escapeHtml(o.item||'')}</strong> <span class="small">x${o.copies||1} — ${escapeHtml(o.name||'')}</span></div>
+            <div class="small">${o.fileUrl? '<a href="'+escapeAttr(o.fileUrl)+'" target="_blank">file</a>':''} <a href="view.html?id=${encodeURIComponent(o.id)}">ticket</a></div>
+          </div>
+          <div>
+            <button class="toggle">${o.status==='completed' ? 'Mark Pending' : 'Mark Done'}</button>
+          </div>
+        </div>
+      `).join('');
+
+      // attach toggle handlers
+      document.querySelectorAll('.order').forEach(el => {
+        el.querySelector('.toggle').addEventListener('click', async () => {
+          const id = decodeURIComponent(el.dataset.id);
+          await toggle(id);
+        });
+      });
+    }
+
+    async function toggle(id){
+      try{
+        const res = await fetch('/api/toggle-status', { method: 'POST', headers: {'Content-Type':'application/json','x-admin-token': adminToken}, body: JSON.stringify({id})});
+        if (!res.ok) throw new Error('Failed');
+        await load();
+      }catch(err){ alert('Could not toggle: '+err.message); }
+    }
+
+    document.getElementById('allBtn').addEventListener('click', ()=>{filter='all'; render();});
+    document.getElementById('pendingBtn').addEventListener('click', ()=>{filter='pending'; render();});
+    document.getElementById('completedBtn').addEventListener('click', ()=>{filter='completed'; render();});
+    refreshBtn.addEventListener('click', ()=> load());
+
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escapeAttr(s){ return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  </script>
+</body>
+</html>
