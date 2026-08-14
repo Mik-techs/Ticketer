@@ -3,123 +3,340 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Print Shop — Place an Order</title>
+  <title>G1 Creative Agency — Print Order</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://mgzzpejvspfkpsegnwqk.supabase.co https://catbox.moe https://wa.me; img-src 'self' https://files.catbox.moe data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;color:#111;padding:18px}
-    .wrap{max-width:720px;margin:0 auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
-    label{display:block;margin-top:10px;font-weight:600}
-    input[type=text],select,textarea{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #e5e7eb}
-    .row{display:flex;gap:8px}
-    .row > *{flex:1}
-    button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#0066ff;color:#fff;cursor:pointer}
-    .small{font-size:13px;color:#6b7280}
+    :root{
+      --ink:#1c2b3a; --paper:#f7f5f0; --stub:#ffffff; --amber:#c9a227; --gold-dark:#8a6d1a; --green:#3a7d44; --red:#b0413e; --line:#d8d2c4; --muted:#6b7280; --radius:12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    html,body{height:100%;background:var(--paper);color:var(--ink);margin:0}
+    body{display:flex;align-items:center;justify-content:center;padding:20px}
+    .ticket{background:var(--stub);border-radius:6px;max-width:420px;width:100%;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid var(--line);padding:18px;box-sizing:border-box}
+    .ticket::before{content:"";display:block;height:14px;margin:-18px -18px 12px;background:repeating-linear-gradient(90deg,var(--amber) 0 10px, transparent 10px 20px);opacity:.6;border-top-left-radius:6px;border-top-right-radius:6px}
+    h1{font-size:20px;margin:0 0 6px}
+    .eyebrow{color:var(--gold-dark);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+    .step{display:none}
+    .step.active{display:block}
+    .controls{display:flex;gap:10px;margin-top:14px}
+    .btn{padding:12px 18px;border-radius:10px;font-weight:700;border:none;cursor:pointer}
+    .btn-primary{background:var(--amber);color:white}
+    .btn-secondary{background:white;border:2px solid var(--line);color:var(--ink)}
+    .btn-send{background:var(--green);color:white}
+    .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .tile{background:white;border:2px solid var(--line);padding:12px;border-radius:12px;text-align:center;cursor:pointer;user-select:none}
+    .tile.selected{border-color:var(--amber);background:#fff8f2}
+    .file-drop{border:2.5px dashed var(--line);background:#fbfaf7;padding:12px;border-radius:10px;position:relative}
+    .file-drop.has-file{border-color:var(--green);background:white}
+    .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+    .progress{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+    .progress i{display:block;height:100%;width:0;background:var(--green);transition:width .15s}
+    .dots{display:flex;gap:6px;margin-bottom:10px}
+    .dot{flex:1;height:6px;background:var(--line);border-radius:3px}
+    .dot.done{background:var(--amber)}
+    .footer{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:14px}
+    input[type="text"],input[type="file"]{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);font-size:15px}
+    .stepper{display:flex;align-items:center;gap:12px;justify-content:center}
+    .circle{width:48px;height:48px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--ink);font-weight:800}
+    .status{font-size:13px;color:var(--muted)}
+    a{color:var(--gold-dark)}
+    button:focus, .tile:focus{outline:3px solid rgba(48,78,23,.18)}
   </style>
 </head>
 <body>
-  <div class="wrap" data-shop-whatsapp="233546850197" data-upload-endpoint="https://catbox.moe/user/api.php" data-jsonstorage-url="" id="app">
-    <h2>Place a print order</h2>
-    <form id="orderForm">
-      <label>What to print (e.g., "Flyer A5")<input name="item" required /></label>
-      <label>Copies<input name="copies" type="number" min="1" value="1" required /></label>
-      <label>File (optional)<input name="file" type="file" accept="image/*,application/pdf" /></label>
-      <label>Color</label>
-      <select name="color"><option>Color</option><option>Black & White</option></select>
-      <label>Paper</label>
-      <select name="paper"><option>Standard</option><option>Premium</option></select>
-      <label>Finishing (optional)</label>
-      <input name="finishing" />
-      <label>Your name<input name="name" required /></label>
-      <div class="small">By sending, you confirm the file is yours to print and not illegal content.</div>
-      <button type="submit">Send order via WhatsApp</button>
-    </form>
-    <div id="status" class="small" style="margin-top:10px"></div>
+  <div id="ticket" data-shop-whatsapp="233546850197" data-upload-endpoint="https://catbox.moe/user/api.php" data-supabase-url="https://mgzzpejvspfkpsegnwqk.supabase.co" data-supabase-anon-key="eyJ...(legacy anon JWT, role=anon)">
+    <main class="ticket" role="application" aria-labelledby="title">
+      <div class="eyebrow">G1 Creative Agency</div>
+      <h1 id="title">Print Order</h1>
+
+      <div id="dots" class="dots" aria-hidden="true"></div>
+
+      <form id="wizard" novalidate>
+        <!-- Step 1 -->
+        <section class="step" data-step="1">
+          <label for="job">What do you need?</label>
+          <input id="job" name="job" type="text" placeholder="e.g. Flyers, Business cards" aria-describedby="jobHelp" />
+          <div id="jobTiles" class="tiles" role="list">
+            <div class="tile" role="button" tabindex="0" data-value="Photocopy">🖨️<div>Photocopy</div></div>
+            <div class="tile" role="button" tabindex="0" data-value="Flyers/Posters">📄<div>Flyers</div></div>
+            <div class="tile" role="button" tabindex="0" data-value="Business Cards">💳<div>Business Cards</div></div>
+            <div class="tile" role="button" tabindex="0" data-value="ID Card">🆔<div>ID Card</div></div>
+          </div>
+        </section>
+
+        <!-- Step 2 -->
+        <section class="step" data-step="2">
+          <label>How many copies?</label>
+          <div class="stepper">
+            <button type="button" class="btn-secondary" id="dec">-</button>
+            <div class="circle" id="copiesDisplay">1</div>
+            <button type="button" class="btn-secondary" id="inc">+</button>
+          </div>
+        </section>
+
+        <!-- Step 3 -->
+        <section class="step" data-step="3">
+          <label>Do you have a file?</label>
+          <div id="fileDrop" class="file-drop">
+            <input id="file" name="file" type="file" accept="application/pdf,image/*" aria-label="Attach file" />
+            <div id="fileLabel">Tap to attach or drag here</div>
+          </div>
+          <div style="margin-top:10px" class="tiles">
+            <div id="bringTile" class="tile" role="button" tabindex="0" data-value="bringOwn">I'll bring it myself</div>
+            <div id="helpTile" class="tile" role="button" tabindex="0">Need help</div>
+          </div>
+        </section>
+
+        <!-- Step 4,5,6 (color/paper/finishing) -->
+        <section class="step" data-step="4">
+          <label>Color or B&amp;W?</label>
+          <div id="colorTiles" class="tiles">
+            <div class="tile" role="button" tabindex="0" data-value="Color">🎨<div>Color</div></div>
+            <div class="tile" role="button" tabindex="0" data-value="Black &amp; White">⚫<div>B&amp;W</div></div>
+          </div>
+        </section>
+
+        <section class="step" data-step="5">
+          <label>Paper size?</label>
+          <div id="sizeTiles" class="tiles">
+            <div class="tile" role="button" tabindex="0" data-value="A4 (normal size)">A4</div>
+            <div class="tile" role="button" tabindex="0" data-value="A3 (large size)">A3</div>
+            <div class="tile" role="button" tabindex="0" data-value="Not sure">Not sure</div>
+          </div>
+        </section>
+
+        <section class="step" data-step="6">
+          <label>Finishing?</label>
+          <div id="bindTiles" class="tiles">
+            <div class="tile" role="button" tabindex="0" data-value="Plain, no finishing">Plain</div>
+            <div class="tile" role="button" tabindex="0" data-value="Stapled">Stapled</div>
+            <div class="tile" role="button" tabindex="0" data-value="Spiral">Spiral</div>
+            <div class="tile" role="button" tabindex="0" data-value="Laminated">Laminated</div>
+          </div>
+        </section>
+
+        <!-- Step 7 -->
+        <section class="step" data-step="7">
+          <label for="name">Your name</label>
+          <input id="name" name="name" type="text" placeholder="e.g. Ama" />
+        </section>
+
+        <!-- Step 8 Review -->
+        <section class="step" data-step="8">
+          <label>Review</label>
+          <canvas id="ticketCanvas" width="480" style="width:100%;border-radius:8px;background:transparent"></canvas>
+          <div id="summaryBox" class="visually-hidden" aria-live="polite"></div>
+        </section>
+
+        <!-- Honeypot (anti-spam) -->
+        <input type="text" id="hp_field" name="hp_field" class="visually-hidden" autocomplete="off" tabindex="-1" />
+        <div class="controls">
+          <button type="button" class="btn btn-secondary" id="backBtn">Back</button>
+          <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+          <button type="button" class="btn btn-send" id="sendBtn" style="display:none">Send to WhatsApp</button>
+        </div>
+      </form>
+
+      <div id="progressWrap" style="display:none;margin-top:12px">
+        <div class="status" id="statusText">Creating ticket...</div>
+        <div class="progress" style="margin-top:8px"><i id="uploadProgress"></i></div>
+      </div>
+
+      <div id="overlay" style="display:none;position:fixed;inset:0;background:rgba(28,43,58,.6);align-items:center;justify-content:center">
+        <div style="background:white;padding:18px;border-radius:14px;max-width:340px;margin:0 auto;text-align:center">
+          <h3>Please attach your file in the WhatsApp chat</h3>
+          <p>If the file upload failed, tap Continue to WhatsApp and attach the file manually in the chat.</p>
+          <button id="overlayContinue" class="btn btn-primary">Continue to WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="footer">If you need help, tap "Need help" or <a id="helpLink" href="#">Talk to us</a>.</div>
+    </main>
   </div>
 
   <script>
-    const app = document.getElementById('app');
-    const shopWhats = app.dataset.shopWhatsapp;
-    const uploadEndpoint = app.dataset.uploadEndpoint;
+    // Config
+    const ticket = document.getElementById('ticket');
+    const SHOP_WHATSAPP = ticket.dataset.shopWhatsapp;
+    const UPLOAD_ENDPOINT = ticket.dataset.uploadEndpoint;
+    const SUPABASE_URL = ticket.dataset.supabaseUrl;
+    const SUPABASE_ANON_KEY = ticket.dataset.supabaseAnonKey;
 
-    const form = document.getElementById('orderForm');
-    const status = document.getElementById('status');
+    // State
+    const state = { job:'', copies:1, bringOwn:false, color:'Color', size:'A4 (normal size)', binding:'Plain, no finishing', name:'', file:null };
+    const FULL_SEQUENCE=[1,2,3,4,5,6,7,8];
+    const NO_FILE_SEQUENCE=[1,2,3,7,8];
+    function currentSequence(){ return state.bringOwn?NO_FILE_SEQUENCE:FULL_SEQUENCE }
+    let currentStepIndex=0;
+    let orderId = makeOrderId();
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      status.textContent = '';
+    // Elements
+    const steps = Array.from(document.querySelectorAll('.step'));
+    const dotsEl = document.getElementById('dots');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const summaryBox = document.getElementById('summaryBox');
+    const helpLink = document.getElementById('helpLink');
+    const fileInput = document.getElementById('file');
+    const fileDrop = document.getElementById('fileDrop');
+    const fileLabel = document.getElementById('fileLabel');
+    const bringTile = document.getElementById('bringTile');
+    const helpTile = document.getElementById('helpTile');
+    const jobInput = document.getElementById('job');
+    const copiesDisplay = document.getElementById('copiesDisplay');
+    const incBtn = document.getElementById('inc');
+    const decBtn = document.getElementById('dec');
+    const canvas = document.getElementById('ticketCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusText = document.getElementById('statusText');
+    const progressWrap = document.getElementById('progressWrap');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const overlay = document.getElementById('overlay');
+    const overlayContinue = document.getElementById('overlayContinue');
 
-      const fd = new FormData(form);
-      const file = fd.get('file');
+    // Accessibility helpers
+    const tiles = Array.from(document.querySelectorAll('.tile'));
+    tiles.forEach(t=>{ t.addEventListener('keydown',e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); t.click() } }); });
 
-      let fileUrl = null;
-      let uploadFailed = false;
+    // Tiles behavior
+    document.getElementById('jobTiles').addEventListener('click',e=>{ const t = e.target.closest('.tile'); if(!t) return; jobInput.value = t.dataset.value; state.job = t.dataset.value; selectTileGroup('jobTiles', t); });
+    document.getElementById('jobTiles').addEventListener('keydown',e=>{});
 
-      if (file && file.size > 0) {
-        // simple client-side size/type check
-        if (file.size > 10 * 1024 * 1024) { // 10MB limit
-          alert('File too large (max 10 MB)');
-          return;
-        }
+    // Generic tile groups
+    function bindTileGroup(containerId, prop){ const container = document.getElementById(containerId); container.addEventListener('click', e=>{ const t=e.target.closest('.tile'); if(!t) return; state[prop]=t.dataset.value; selectTileGroup(containerId,t); }); }
+    bindTileGroup('colorTiles','color'); bindTileGroup('sizeTiles','size'); bindTileGroup('bindTiles','binding');
 
-        status.textContent = 'Uploading file...';
-        try {
-          const up = new FormData();
-          up.append('reqtype', 'fileupload');
-          up.append('fileToUpload', file);
+    function selectTileGroup(containerId, selected){ const container = document.getElementById(containerId); Array.from(container.children).forEach(c=>c.classList.toggle('selected', c===selected)); }
 
-          const r = await fetch(uploadEndpoint, { method: 'POST', body: up });
-          const text = await r.text();
-          // Catbox returns a direct link in the response body
-          if (r.ok && text && text.startsWith('http')) {
-            fileUrl = text.trim();
-          } else {
-            console.warn('upload response', r.status, text);
-            uploadFailed = true;
-          }
-        } catch (err) {
-          console.error(err);
-          uploadFailed = true;
-        }
+    // Bring own file tile
+    bringTile.addEventListener('click', ()=>{ state.bringOwn = true; state.file = null; fileInput.value=''; fileDrop.classList.remove('has-file'); updateStepUI(); });
+    bringTile.addEventListener('keydown',e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); bringTile.click(); } });
+
+    helpTile.addEventListener('click', ()=>{ const msg = encodeURIComponent('Hi, I need help with a print order.'); window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${msg}` });
+
+    helpLink.addEventListener('click', (e)=>{ e.preventDefault(); const msg = encodeURIComponent('Hi, I need help with a print order.'); window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${msg}` });
+
+    // File input
+    fileInput.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(f){ state.file = f; state.bringOwn=false; fileDrop.classList.add('has-file'); fileLabel.textContent = `Selected: ${f.name}`; } else { state.file = null; fileDrop.classList.remove('has-file'); fileLabel.textContent = 'Tap to attach or drag here'; } updateStepUI(); });
+
+    ['dragenter','dragover'].forEach(ev=>{ fileDrop.addEventListener(ev, (e)=>{ e.preventDefault(); e.stopPropagation(); fileDrop.classList.add('dragover'); }); });
+    ['dragleave','drop'].forEach(ev=>{ fileDrop.addEventListener(ev, (e)=>{ e.preventDefault(); e.stopPropagation(); fileDrop.classList.remove('dragover'); if(ev==='drop' && e.dataTransfer.files && e.dataTransfer.files[0]){ fileInput.files = e.dataTransfer.files; fileInput.dispatchEvent(new Event('change')); } }); });
+
+    // Stepper
+    incBtn.addEventListener('click', ()=>{ state.copies = Math.max(1, (state.copies||1)+1); renderCopies(); });
+    decBtn.addEventListener('click', ()=>{ state.copies = Math.max(1, (state.copies||1)-1); renderCopies(); });
+    function renderCopies(){ copiesDisplay.textContent = state.copies; }
+    renderCopies();
+
+    // Wizard navigation
+    function rebuildDots(){ dotsEl.innerHTML=''; const seq = currentSequence(); seq.forEach((s,i)=>{ const d=document.createElement('div'); d.className = 'dot' + (i<=currentStepIndex?' done':''); dotsEl.appendChild(d); }); }
+    function showStepByIndex(idx){ currentStepIndex = idx; const seq = currentSequence(); steps.forEach(step=>{ step.classList.toggle('active', step.dataset.step==seq[idx]); }); rebuildDots(); updateButtons(); if(seq[idx]==8){ drawTicket(); sendBtn.style.display='inline-block'; nextBtn.style.display='none'; } else { sendBtn.style.display='none'; nextBtn.style.display='inline-block'; }
+      // Update summary for SR
+      summaryBox.textContent = buildPlainText();
+    }
+    function updateButtons(){ backBtn.disabled = currentStepIndex===0; }
+
+    nextBtn.addEventListener('click', ()=>{ const seq = currentSequence(); if(currentStepIndex < seq.length-1){ currentStepIndex++; showStepByIndex(currentStepIndex); } });
+    backBtn.addEventListener('click', ()=>{ if(currentStepIndex>0){ currentStepIndex--; showStepByIndex(currentStepIndex); } });
+
+    // Start
+    showStepByIndex(0);
+
+    // Make order id
+    function makeOrderId(){ const d=new Date(); const yy = String(d.getFullYear()).slice(-2); const mm = String(d.getMonth()+1).padStart(2,'0'); const dd = String(d.getDate()).padStart(2,'0'); const suffix = String(Math.floor(Math.random()*9000)+1000); return `PR-${yy}${mm}${dd}-${suffix}`; }
+
+    // Canvas ticket rendering (improved wrap and scaling)
+    function drawTicket(){ const dpr = window.devicePixelRatio||1; const logicalWidth = 480; canvas.width = logicalWidth * dpr; canvas.style.width = logicalWidth+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,canvas.width,canvas.height);
+      const pad=12; let y=pad; ctx.fillStyle = '#fff'; ctx.fillRect(0,0,logicalWidth,800);
+      ctx.fillStyle = '#8a6d1a'; ctx.font='14px  system-ui'; ctx.fillText('G1 CREATIVE AGENCY', pad, y+12);
+      y+=28; ctx.fillStyle= '#000'; ctx.font='22px bold'; ctx.fillText('Print Order', pad, y);
+      y+=30; ctx.font='12px'; ctx.fillStyle='#6b7280'; ctx.fillText(`#${orderId} · ${new Date().toLocaleString()}`, pad, y);
+      y+=14; drawDashed(pad,y+8,logicalWidth-pad); y+=18;
+      ctx.font='14px bold'; writeRow('JOB', state.job || jobInput.value || '—');
+      writeRow('COPIES', String(state.copies));
+      if(!state.bringOwn){ writeRow('COLOR', state.color); writeRow('PAPER', state.size); writeRow('FINISHING', state.binding); }
+      writeRow('FILE', state.file? state.file.name : (state.bringOwn? 'Bringing own file' : 'No file'));
+      writeRow('CUSTOMER', document.getElementById('name').value || state.name || '—');
+      drawDashed(pad,y+8,logicalWidth-pad); y+=24;
+      ctx.fillStyle = 'var(--green)'; ctx.fillStyle = '#3a7d44'; ctx.font='16px bold'; ctx.fillText('Thank you! See you at the counter.', pad, y);
+
+      // auto-height handled by cropping canvas size
+      function writeRow(label, value){ ctx.fillStyle='#6b7280'; ctx.font='11px bold'; ctx.fillText(label, pad, y); ctx.fillStyle='#000'; ctx.font='14px'; wrapText(value, logicalWidth - pad*2 - 80, pad+80, y - 10); y+=22 + (Math.ceil((value.length||0)/30)*12); }
+      function drawDashed(x1,y1,x2){ ctx.strokeStyle='#d8d2c4'; ctx.beginPath(); const dash=6; for(let x=x1;x<x2;x+=dash*2){ ctx.moveTo(x,y1); ctx.lineTo(Math.min(x+dash,x2),y1); } ctx.stroke(); }
+      function wrapText(text, maxW, x, startY){ const words = String(text).split(' '); let line=''; let lineHeight=14; let yy=startY+14; for(let n=0;n<words.length;n++){ const testLine = line + words[n] + ' '; const metrics = ctx.measureText(testLine); if(metrics.width > maxW && n>0){ ctx.fillText(line, x, yy); line = words[n] + ' '; yy += lineHeight; } else { line = testLine; } } ctx.fillText(line, x, yy); y = yy + 8; }
+
+    }
+
+    // Build plain text fallback
+    function buildPlainText(){ const job = state.job || jobInput.value || '—'; const name = document.getElementById('name').value || '—'; let out = `G1 Creative Agency — New Order\n------------------------\nOrder: ${orderId}\nJob: ${job}\nCopies: ${state.copies}\n`;
+      if(!state.bringOwn){ out += `Color: ${state.color}\nPaper: ${state.size}\nFinishing: ${state.binding}\n`; }
+      out += `Customer: ${name}\nFile: ${state.file? state.file.name : (state.bringOwn? 'Bringing own file' : 'No file')}`;
+      return out; }
+
+    // Send flow
+    sendBtn.addEventListener('click', async ()=>{ // anti-spam honeypot
+      if(document.getElementById('hp_field').value){ alert('Spam detected'); return; }
+      // Simple timing check
+      const now = Date.now(); if(window._lastStart && now - window._lastStart < 1000){ alert('Please take a moment before sending.'); return; } window._lastStart = now;
+      disableSend(true);
+      progressWrap.style.display='block'; statusText.textContent='Creating ticket...'; uploadProgress.style.width='0%';
+      // draw and upload ticket image
+      let ticketLink = null; try{ const blob = await new Promise(resolve=> canvas.toBlob(resolve,'image/png')); ticketLink = await uploadFile(blob, `order-${orderId}.png`); } catch(e){ console.warn('Ticket upload failed',e); ticketLink=null; }
+      // upload customer file
+      let fileLink = null; let fileUploadFailed = false; if(state.file){ statusText.textContent='Uploading your file...'; try{ fileLink = await uploadFile(state.file, state.file.name); } catch(e){ console.warn('File upload failed',e); fileUploadFailed = true; }
       }
-
-      // build order object
-      const order = {
-        item: fd.get('item'),
-        copies: Number(fd.get('copies')) || 1,
-        color: fd.get('color'),
-        paper: fd.get('paper'),
-        finishing: fd.get('finishing') || '',
-        name: fd.get('name'),
-        fileUrl: fileUrl,
-        uploaded: !!fileUrl,
-        uploadFailed: uploadFailed
-      };
-
-      status.textContent = 'Saving order...';
-
-      try {
-        const res = await fetch('/api/create-order', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order })
-        });
-        const j = await res.json();
-        if (!res.ok) throw new Error(j && j.error ? j.error : 'Failed to create order');
-
-        const id = j.id;
-        const ticketUrl = `${location.origin}${location.pathname.replace(/[^/]*$/, '')}view.html?id=${encodeURIComponent(id)}`;
-
-        // build WhatsApp link — brief message with the ticket link
-        const waText = `Hi, I've placed an order. Ticket: ${ticketUrl}`;
-        const waLink = `https://wa.me/${shopWhats}?text=${encodeURIComponent(waText)}`;
-
-        status.textContent = 'Opening WhatsApp — tap Send to complete.';
-        // open WhatsApp in a new tab/window
-        window.open(waLink, '_blank');
-      } catch (err) {
-        console.error(err);
-        status.textContent = 'Error saving order: ' + err.message;
-        alert('Could not save the order. You can still send WhatsApp manually: copy the details.');
-      }
+      // save to supabase (non-blocking, with retry)
+      statusText.textContent='Saving order...'; try{ await saveOrderToDashboard({ order_code: orderId, job: state.job||jobInput.value||'', copies: state.copies||1, color: state.bringOwn?null:state.color, paper_size: state.bringOwn?null:state.size, finishing: state.bringOwn?null:state.binding, customer_name: document.getElementById('name').value||'', bring_own: !!state.bringOwn, file_name: state.file?state.file.name:null, file_link: fileLink || null, ticket_link: ticketLink || null }); } catch(e){ console.warn('Supabase insert failed', e); }
+      // Build message and go to whatsapp
+      const message = buildMessage(orderId, state.job||jobInput.value||'', document.getElementById('name').value||'', !!state.file, state.file?state.file.name:'', fileLink, ticketLink);
+      disableSend(false);
+      if(fileUploadFailed){ overlay.style.display='flex'; overlayContinue.onclick = ()=>{ overlay.style.display='none'; window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${encodeURIComponent(message)}`; } }
+      else{ window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${encodeURIComponent(message)}`; }
     });
+
+    function disableSend(dis){ sendBtn.disabled = dis; if(dis){ sendBtn.setAttribute('aria-busy','true'); } else { sendBtn.removeAttribute('aria-busy'); } }
+
+    function buildMessage(orderCode, job, name, hasFile, fileName, fileLink, ticketLink){ let lines = [];
+      lines.push('*G1 Creative Agency — New Order*'); lines.push('------------------------');
+      if(ticketLink){ lines.push(`*Order Ticket:* ${ticketLink}`); lines.push('------------------------'); }
+      lines.push(`*Order:* ${orderCode}`);
+      if(!state.bringOwn){ lines.push(`*Job:* ${job}`); lines.push(`*Copies:* ${state.copies}`); lines.push(`*Color:* ${state.color}`); lines.push(`*Paper:* ${state.size}`); lines.push(`*Finishing:* ${state.binding}`); }
+      lines.push(`*Customer:* ${name}`);
+      lines.push(`*File:* ${fileName || (state.bringOwn? 'Bringing own file' : 'No file')}`);
+      if(fileLink) lines.push(`*Download:* ${fileLink}`);
+      return lines.join('\n'); }
+
+    // uploadFile using XHR with progress events
+    function uploadFile(file, filename){ return new Promise((resolve,reject)=>{
+      const xhr = new XMLHttpRequest(); xhr.open('POST', UPLOAD_ENDPOINT);
+      const form = new FormData(); form.append('reqtype','fileupload'); form.append('fileToUpload', file, filename);
+      xhr.upload.addEventListener('progress',(e)=>{ if(e.lengthComputable){ const pct = Math.round(e.loaded / e.total * 100); uploadProgress.style.width = pct + '%'; } });
+      xhr.onload = ()=>{ if(xhr.status>=200 && xhr.status<300){ const text = xhr.responseText.trim(); // catbox returns URL in body
+            if(text.startsWith('http')) resolve(text); else reject(new Error('Invalid upload response')); } else { reject(new Error('Upload failed status:'+xhr.status)); } };
+      xhr.onerror = ()=>reject(new Error('Network error')); xhr.send(form);
+    }); }
+
+    // save order with simple retry/backoff (non-blocking overall)
+    async function saveOrderToDashboard(payload){ const url = `${SUPABASE_URL}/rest/v1/orders`; const headers = {'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,'Prefer':'return=minimal'}; let attempts=0; while(attempts<3){ attempts++; try{ const res = await fetch(url,{method:'POST',headers,body:JSON.stringify(payload)}); if(res.ok) return; else console.warn('Supabase returned',res.status); } catch(e){ console.warn('Supabase save error',e); } await new Promise(r=>setTimeout(r,500 * attempts)); } throw new Error('Failed to save order after retries'); }
+
+    // build plain message for other uses
+
+    // Small UX: enable send on review
+    // When hitting review (step 8) enable final send button
+    // also keep summaryBox updated
+
+    // Keyboard: next on Enter for text fields
+    ['job','name'].forEach(id=>{ const el=document.getElementById(id); el.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); nextBtn.click(); } }); });
+
+    // Update UI when sequence changes (e.g., bringOwn toggled)
+    function updateStepUI(){ // ensure currentStepIndex in bounds
+      const seq = currentSequence(); if(currentStepIndex >= seq.length) currentStepIndex = seq.length-1; showStepByIndex(currentStepIndex);
+    }
+
+    // Simple anti-bot: timestamp on load
+    window._formStart = Date.now();
+
   </script>
 </body>
 </html>

@@ -3,125 +3,108 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Orders Dashboard</title>
+  <title>G1 Creative Agency — Dashboard</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://mgzzpejvspfkpsegnwqk.supabase.co; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;color:#111;padding:18px}
-    .wrap{max-width:960px;margin:0 auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
-    .order{padding:8px;border-bottom:1px solid #eef2f7;display:flex;justify-content:space-between;align-items:center}
-    .small{font-size:13px;color:#6b7280}
-    .tabs{display:flex;gap:8px;margin-bottom:10px}
-    button{padding:8px 12px;border-radius:6px;border:0;background:#0066ff;color:#fff;cursor:pointer}
+    :root{--ink:#1c2b3a;--paper:#f7f5f0;--line:#d8d2c4;--gold:#c9a227;--gold-dark:#8a6d1a;--green:#3a7d44;--muted:#6b7280}
+    html,body{height:100%;margin:0;background:var(--paper);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink)}
+    .topbar{background:var(--ink);color:white;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+    .container{max-width:820px;margin:18px auto;padding:12px}
+    .card{background:white;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
+    .filters{display:flex;gap:8px;margin-bottom:12px}
+    .chip{padding:8px 12px;border-radius:20px;border:1px solid var(--line);background:white;cursor:pointer}
+    .chip.active{background:var(--ink);color:white}
+    .order-card{display:flex;flex-direction:column;gap:8px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    .status-badge{padding:6px 8px;border-radius:14px;font-weight:700}
+    .status-new{background:#fdf1d6;color:#8a6d1a}
+    .status-in_progress{background:#e2ecfa;color:#2b5fa8}
+    .status-done{background:#e3f1e5;color:var(--green)}
+    .links{display:flex;gap:8px}
+    a.pill{padding:8px 10px;border-radius:10px;border:1px solid var(--line);text-decoration:none;color:var(--ink)}
+    .login-container{display:flex;justify-content:center;align-items:center;height:70vh}
+    .login-card{width:100%;max-width:360px}
+    input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);margin-bottom:8px}
+    button{padding:10px 12px;border-radius:8px;border:none;background:var(--gold-dark);color:white;font-weight:700}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h2>Orders</h2>
-    <div id="auth">
-      <label>Enter PIN to view dashboard <input id="pin" type="password"/> <button id="login">Unlock</button></label>
-      <div class="small">This PIN is checked server-side. Do not share it.</div>
+  <div class="topbar"><div>G1 Creative Agency</div><button id="logoutBtn" style="display:none">Logout</button></div>
+  <div class="container">
+    <div id="loginScreen" class="login-container">
+      <div class="login-card card">
+        <h2>Staff login</h2>
+        <div id="loginError" style="color:var(--red);display:none"></div>
+        <input id="email" type="text" placeholder="email" />
+        <input id="password" type="password" placeholder="password" />
+        <button id="loginBtn">Sign in</button>
+      </div>
     </div>
 
-    <div id="ui" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div class="tabs">
-          <button id="allBtn">All</button>
-          <button id="pendingBtn">Pending</button>
-          <button id="completedBtn">Completed</button>
+    <div id="dashboardScreen" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center"><h3>Orders</h3><div><button id="refreshBtn">Refresh</button></div></div>
+        <div class="filters">
+          <div class="chip active" data-filter="all">All</div>
+          <div class="chip" data-filter="new">New</div>
+          <div class="chip" data-filter="in_progress">In progress</div>
+          <div class="chip" data-filter="done">Done</div>
         </div>
-        <div>
-          <button id="refresh">Refresh</button>
-        </div>
+        <div id="ordersList"></div>
       </div>
-      <div id="list" style="margin-top:12px"></div>
     </div>
   </div>
 
   <script>
-    const auth = document.getElementById('auth');
-    const ui = document.getElementById('ui');
-    const pinInput = document.getElementById('pin');
-    const loginBtn = document.getElementById('login');
-    const listEl = document.getElementById('list');
-    const refreshBtn = document.getElementById('refresh');
+    const SUPABASE_URL = document.body.dataset.supabaseUrl || 'https://mgzzpejvspfkpsegnwqk.supabase.co';
+    const SUPABASE_ANON_KEY = document.body.dataset.supabaseAnonKey || 'eyJ...(legacy anon JWT, role=anon)';
 
-    let adminToken = null;
-    let orders = {};
-    let filter = 'all';
+    let session = JSON.parse(localStorage.getItem('g1_dashboard_session')||'null');
+    const loginScreen = document.getElementById('loginScreen');
+    const dashboardScreen = document.getElementById('dashboardScreen');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginError = document.getElementById('loginError');
+    const ordersList = document.getElementById('ordersList');
+    const chips = Array.from(document.querySelectorAll('.chip'));
+    let lastOrders = [];
+    let poller = null;
+    let currentFilter = 'all';
 
-    loginBtn.addEventListener('click', () => {
-      const p = pinInput.value.trim();
-      if (!p) return alert('Enter PIN');
-      adminToken = p; // sent as x-admin-token to server
-      sessionStorage.setItem('adminToken', adminToken);
-      showUI();
-      load();
-    });
+    function showLogin(){ loginScreen.style.display='flex'; dashboardScreen.style.display='none'; logoutBtn.style.display='none'; }
+    function showDashboard(){ loginScreen.style.display='none'; dashboardScreen.style.display='block'; logoutBtn.style.display='inline-block'; }
 
-    function showUI(){ auth.style.display='none'; ui.style.display='block'; }
-    window.addEventListener('load', ()=>{
-      const saved = sessionStorage.getItem('adminToken');
-      if (saved){ adminToken = saved; showUI(); load(); }
-    });
+    if(session && session.access_token){ showDashboard(); startPolling(); } else { showLogin(); }
 
-    async function load(){
-      try{
-        listEl.innerHTML='Loading...';
-        const res = await fetch('/api/list-orders', { headers: { 'x-admin-token': adminToken }});
-        if (!res.ok) throw new Error('Unauthorized or failed');
-        const j = await res.json();
-        orders = j.orders || {};
-        render();
-      }catch(err){
-        console.error(err);
-        alert('Could not load orders: ' + err.message);
-        sessionStorage.removeItem('adminToken');
-        auth.style.display='block'; ui.style.display='none';
-      }
+    loginBtn.addEventListener('click', async ()=>{ loginError.style.display='none'; const email = document.getElementById('email').value; const password = document.getElementById('password').value; try{ const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},body:JSON.stringify({email,password})}); const data = await res.json(); if(data.access_token){ session = data; localStorage.setItem('g1_dashboard_session', JSON.stringify(session)); showDashboard(); startPolling(); } else { loginError.textContent = 'Login failed'; loginError.style.display='block'; } } catch(e){ loginError.textContent='Network error'; loginError.style.display='block'; }});
+
+    logoutBtn.addEventListener('click', ()=>{ localStorage.removeItem('g1_dashboard_session'); session = null; stopPolling(); showLogin(); });
+
+    function startPolling(){ fetchOrders(); poller = setInterval(fetchOrders,15000); }
+    function stopPolling(){ if(poller) clearInterval(poller); }
+
+    async function fetchOrders(){ try{ const token = session && session.access_token; const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?select=*&order=created_at.desc`,{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization': token?`Bearer ${token}`:''}}); if(res.status===401){ // session expired
+          localStorage.removeItem('g1_dashboard_session'); session=null; stopPolling(); showLogin(); return; }
+        const orders = await res.json(); lastOrders = orders; renderOrders(); } catch(e){ console.warn('Fetch orders failed',e); } }
+
+    function renderOrders(){ ordersList.innerHTML=''; const filtered = lastOrders.filter(o=> currentFilter==='all' || o.status===currentFilter); for(const o of filtered){ const el = document.createElement('div'); el.className='card order-card'; el.innerHTML = `<div class="row"><div><strong>${escapeHtml(o.order_code)}</strong><div class="status">${new Date(o.created_at).toLocaleString()}</div></div><div><span class="status-badge status-${escapeHtml(o.status)}">${escapeHtml(o.status)}</span></div></div>`;
+        const details = document.createElement('div'); details.innerHTML = `<div>Job: ${escapeHtml(o.job)}</div><div>Copies: ${escapeHtml(String(o.copies))}</div>`;
+        if(!o.bring_own){ details.innerHTML += `<div>Color: ${escapeHtml(o.color||'')}</div><div>Paper: ${escapeHtml(o.paper_size||'')}</div><div>Finishing: ${escapeHtml(o.finishing||'')}</div>`; }
+        details.innerHTML += `<div>Customer: ${escapeHtml(o.customer_name)}</div>`;
+        el.appendChild(details);
+        const linkRow = document.createElement('div'); linkRow.className='links'; if(o.ticket_link) linkRow.innerHTML += `<a class="pill" href="${o.ticket_link}" target="_blank">View Ticket</a>`; if(o.file_link) linkRow.innerHTML += `<a class="pill" href="${o.file_link}" target="_blank">Download File</a>`; el.appendChild(linkRow);
+        const btnRow = document.createElement('div'); btnRow.style.display='flex'; btnRow.style.justifyContent='flex-end'; btnRow.style.marginTop='8px'; const actionBtn = document.createElement('button'); if(o.status==='new'){ actionBtn.textContent='Start Order'; actionBtn.onclick = ()=>updateStatus(o.id,'in_progress'); } else if(o.status==='in_progress'){ actionBtn.textContent='Mark Done'; actionBtn.onclick = ()=>updateStatus(o.id,'done'); } else { actionBtn.textContent='Reopen'; actionBtn.onclick = ()=>updateStatus(o.id,'new'); }
+        btnRow.appendChild(actionBtn); el.appendChild(btnRow);
+        ordersList.appendChild(el); }
     }
 
-    function render(){
-      const arr = Object.values(orders).sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
-      let shown = arr;
-      if (filter === 'pending') shown = arr.filter(o=>o.status==='pending');
-      if (filter === 'completed') shown = arr.filter(o=>o.status==='completed');
+    async function updateStatus(id, status){ try{ const token = session && session.access_token; const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${id}`,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization': token?`Bearer ${token}`:'','Prefer':'return=minimal'},body:JSON.stringify({status})}); if(res.status===401){ localStorage.removeItem('g1_dashboard_session'); session=null; stopPolling(); showLogin(); return; } await fetchOrders(); } catch(e){ console.warn('Update failed',e); } }
 
-      if (shown.length === 0) { listEl.innerHTML = '<div class="small">No orders.</div>'; return; }
-      listEl.innerHTML = shown.map(o => `
-        <div class="order" data-id="${encodeURIComponent(o.id)}">
-          <div>
-            <div><strong>${escapeHtml(o.item||'')}</strong> <span class="small">x${o.copies||1} — ${escapeHtml(o.name||'')}</span></div>
-            <div class="small">${o.fileUrl? '<a href="'+escapeAttr(o.fileUrl)+'" target="_blank">file</a>':''} <a href="view.html?id=${encodeURIComponent(o.id)}">ticket</a></div>
-          </div>
-          <div>
-            <button class="toggle">${o.status==='completed' ? 'Mark Pending' : 'Mark Done'}</button>
-          </div>
-        </div>
-      `).join('');
+    document.getElementById('refreshBtn').addEventListener('click', fetchOrders);
 
-      // attach toggle handlers
-      document.querySelectorAll('.order').forEach(el => {
-        el.querySelector('.toggle').addEventListener('click', async () => {
-          const id = decodeURIComponent(el.dataset.id);
-          await toggle(id);
-        });
-      });
-    }
+    chips.forEach(c=>c.addEventListener('click', ()=>{ chips.forEach(x=>x.classList.remove('active')); c.classList.add('active'); currentFilter=c.dataset.filter; renderOrders(); }));
 
-    async function toggle(id){
-      try{
-        const res = await fetch('/api/toggle-status', { method: 'POST', headers: {'Content-Type':'application/json','x-admin-token': adminToken}, body: JSON.stringify({id})});
-        if (!res.ok) throw new Error('Failed');
-        await load();
-      }catch(err){ alert('Could not toggle: '+err.message); }
-    }
-
-    document.getElementById('allBtn').addEventListener('click', ()=>{filter='all'; render();});
-    document.getElementById('pendingBtn').addEventListener('click', ()=>{filter='pending'; render();});
-    document.getElementById('completedBtn').addEventListener('click', ()=>{filter='completed'; render();});
-    refreshBtn.addEventListener('click', ()=> load());
-
-    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function escapeAttr(s){ return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]; }); }
   </script>
 </body>
 </html>
