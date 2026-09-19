@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G1 Creative Agency - Our Work</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%225%22%20fill%3D%22%231c2b3a%22/%3E%3Cpath%20d%3D%22M7%205h7l3%203v11H7z%22%20fill%3D%22none%22%20stroke%3D%22%23c9a227%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M14%205v3h3%22%20fill%3D%22none%22%20stroke%3D%22%23c9a227%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
+<meta name="description" content="See samples of past work from G1 Creative Agency - business cards, banners, stickers, T-shirt printing, and more, printed in Sunyani.">
+<meta property="og:title" content="G1 Creative Agency - Our Work">
+<meta property="og:description" content="A gallery of past print jobs - business cards, banners, stickers, T-shirts, and more.">
+<meta property="og:type" content="website">
+
+<style>
+ :root{
+ --ink:#1c2b3a;
+ --paper:#f7f5f0;
+ --stub:#ffffff;
+ --amber:#c9a227;
+ --gold-dark:#8a6d1a;
+ --green:#3a7d44;
+ --line:#d8d2c4;
+ --line-strong:#8e8a81;
+ --muted:#686f7d;
+ }
+ *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+ body{
+ margin:0;
+ background:var(--paper);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+ color:var(--ink);
+ }
+
+ header{
+ background:var(--ink);
+ color:#fff;
+ padding:26px 20px 20px;
+ text-align:center;
+ }
+ .eyebrow{
+ font-size:11px;
+ letter-spacing:.14em;
+ text-transform:uppercase;
+ color:var(--amber);
+ font-weight:700;
+ margin:0 0 6px;
+ }
+ header h1{font-size:22px;margin:0 0 6px;font-weight:800;}
+ header p{font-size:13.5px;color:rgba(255,255,255,.7);margin:0;}
+
+ .filters{
+ display:flex;
+ gap:8px;
+ padding:16px 16px 0;
+ max-width:900px;
+ margin:0 auto;
+ flex-wrap:wrap;
+ justify-content:center;
+ }
+ .filter-chip{
+ padding:8px 15px;
+ border-radius:20px;
+ border:1.5px solid var(--line-strong);
+ background:#fff;
+ font-size:13px;
+ font-weight:700;
+ cursor:pointer;
+ color:var(--muted);
+ }
+ .filter-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+ .gallery-wrap{
+ max-width:900px;
+ margin:0 auto;
+ padding:18px 16px 50px;
+ }
+ .grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+ gap:12px;
+ }
+ .item{
+ background:#fff;
+ border:1px solid var(--line);
+ border-radius:10px;
+ overflow:hidden;
+ cursor:pointer;
+ }
+ .item img{
+ width:100%;
+ aspect-ratio:1/1;
+ object-fit:cover;
+ display:block;
+ background:var(--paper);
+ }
+ .item .caption{
+ padding:8px 10px 10px;
+ font-size:12.5px;
+ font-weight:700;
+ }
+ .item .cat-label{
+ font-size:10.5px;
+ color:var(--gold-dark);
+ font-weight:700;
+ text-transform:uppercase;
+ letter-spacing:.04em;
+ margin:0 0 2px;
+ }
+
+ .empty-state, .loading-state{
+ text-align:center;
+ color:var(--muted);
+ font-size:14px;
+ padding:70px 20px;
+ }
+
+ .cta-row{
+ text-align:center;
+ padding:10px 0 30px;
+ }
+ .cta-btn{
+ display:inline-block;
+ background:var(--amber);
+ color:var(--ink);
+ font-weight:700;
+ font-size:14px;
+ padding:12px 26px;
+ border-radius:24px;
+ text-decoration:none;
+ }
+
+ .lightbox{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:rgba(28,43,58,.92);
+ align-items:center;
+ justify-content:center;
+ padding:24px;
+ z-index:20;
+ }
+ .lightbox.show{display:flex;}
+ .lightbox-inner{max-width:520px;width:100%;text-align:center;}
+ .lightbox img{width:100%;border-radius:10px;max-height:70vh;object-fit:contain;background:#111;}
+ .lightbox .caption{color:#fff;font-size:15px;font-weight:700;margin-top:14px;}
+ .lightbox .cat-label{color:var(--amber);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-top:4px;}
+ .lightbox-close{
+ margin-top:20px;
+ background:transparent;
+ border:1.5px solid rgba(255,255,255,.5);
+ color:#fff;
+ padding:9px 20px;
+ border-radius:20px;
+ font-weight:700;
+ font-size:13px;
+ cursor:pointer;
+ }
+
+ .tile-icon{width:16px;height:16px;display:inline-block;vertical-align:-3px;margin-right:4px;}
+</style>
+</head>
+<body data-supabase-url="https://mgzzpejvspfkpsegnwqk.supabase.co"
+ data-supabase-anon-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nenpwZWp2c3Bma3BzZWdud3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NTE1MDAsImV4cCI6MjEwMjIyNzUwMH0.Ls27DGDlGjTGx5tKuExLO1lSHY3mMcK6i4-VSjVzpQk"
+ data-order-form-url="./print-order.html">
+
+<noscript>
+ <div style="max-width:420px;margin:40px auto;padding:20px;background:#fff;border:1px solid #d8d2c4;border-radius:10px;text-align:center;font-family:sans-serif;">
+ <p style="font-weight:700;margin:0 0 8px;">This page needs JavaScript enabled.</p>
+ <p style="color:#6b7280;font-size:14px;margin:0;">Please enable JavaScript in your browser to continue.</p>
+ </div>
+</noscript>
+
+
+<svg style="display:none" aria-hidden="true">
+<defs>
+ <symbol id="icon-close" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="19" y1="5" x2="5" y2="19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+ <symbol id="icon-send" viewBox="0 0 24 24"><path d="M2 4l19 8-19 8 4-8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+
+ <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.8 7-12.5A7 7 0 0 0 5 9.5C5 15.2 12 22 12 22z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+
+ <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5.5l4 2.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+ <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M6.5 3.5c1 0 2.6 2.4 2.6 3.4s-1.5 1.7-1.5 2.7c0 1.8 3.4 5.2 5.2 5.2 1 0 1.7-1.5 2.7-1.5s3.4 1.6 3.4 2.6c0 1.4-1.7 3.1-3 3.1-3.5 0-10.5-7-10.5-10.5 0-1.3 1.7-3 3.1-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+
+ <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 6.5l9 6.5 9-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+</defs>
+</svg>
+
+<header>
+ <p class="eyebrow">G1 Creative Agency</p>
+ <h1>Our Work</h1>
+ <p>A few pieces we've printed for past customers</p>
+</header>
+
+<div class="filters" id="filters">
+ <div class="filter-chip active" data-filter="all">All</div>
+ <div class="filter-chip" data-filter="standardPrint">Print &amp; Copy</div>
+ <div class="filter-chip" data-filter="card">Cards</div>
+ <div class="filter-chip" data-filter="banner">Banners</div>
+ <div class="filter-chip" data-filter="stickers">Stickers</div>
+ <div class="filter-chip" data-filter="apparel">T-Shirts</div>
+</div>
+
+<div class="gallery-wrap">
+ <div id="galleryContent">
+ <p class="loading-state">Loading our work…</p>
+ </div>
+</div>
+
+<div class="cta-row">
+ <a class="cta-btn" id="orderCta" href="./print-order.html">
+ <svg class="tile-icon" aria-hidden="true" style="width:16px;height:16px;color:var(--ink);"><use href="#icon-send"></use></svg>
+ Place an order
+ </a>
+</div>
+
+<div style="text-align:center;font-size:11px;color:var(--muted);padding:0 20px 40px;line-height:2;max-width:900px;margin:0 auto;">
+ <p style="margin:0;">
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-pin"></use></svg>Behind 3sec Kitchen, UENR, Sunyani
+ <br>
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-clock"></use></svg>Mon-Sat, 9:00 AM - 7:30 PM
+ <br>
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-phone"></use></svg>+233 53 406 8414
+ &nbsp;·&nbsp;
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-mail"></use></svg>g1creative97@gmail.com
+ </p>
+ <p style="margin:8px 0 0;">
+ Instagram @gyankomichael &nbsp;·&nbsp; Facebook Michael Gyanko &nbsp;·&nbsp; X @michael_gy2946
+ </p>
+ <p style="margin:10px 0 0;font-size:10.5px;">
+ <a href="./privacy-policy.html" style="color:var(--muted);text-decoration:underline;">Privacy</a>
+ &nbsp;·&nbsp;
+ <a href="./terms-and-conditions.html" style="color:var(--muted);text-decoration:underline;">Terms</a>
+ &nbsp;·&nbsp;
+ <a href="./refund-policy.html" style="color:var(--muted);text-decoration:underline;">Refunds</a>
+ </p>
+</div>
+
+<div class="lightbox" id="lightbox">
+ <div class="lightbox-inner">
+ <img id="lightboxImg" src="" alt="">
+ <p id="lightboxFallback" style="display:none;color:rgba(255,255,255,.7);font-size:14px;padding:60px 20px;">This image couldn't be loaded.</p>
+ <p class="cat-label" id="lightboxCat"></p>
+ <p class="caption" id="lightboxCaption"></p>
+ <button class="lightbox-close" id="lightboxClose">
+ <svg class="tile-icon" aria-hidden="true" style="width:14px;height:14px;color:#fff;"><use href="#icon-close"></use></svg>
+ Close
+ </button>
+ </div>
+</div>
+
+<script>
+(function(){
+ const body = document.body;
+ const SUPABASE_URL = body.dataset.supabaseUrl;
+ const SUPABASE_ANON_KEY = body.dataset.supabaseAnonKey;
+ const ORDER_FORM_URL = body.dataset.orderFormUrl;
+ document.getElementById('orderCta').href = ORDER_FORM_URL;
+
+ const CATEGORY_LABELS = {
+ standardPrint: 'Print & Copy',
+ card: 'Cards',
+ banner: 'Banners',
+ stickers: 'Stickers',
+ apparel: 'T-Shirts',
+ other: 'Other'
+ };
+
+ let allItems = [];
+ let currentFilter = 'all';
+
+ function escapeHtml(str){
+ const div = document.createElement('div');
+ div.textContent = str == null ? '' : String(str);
+ return div.innerHTML;
+ }
+
+ // Same reasoning as the dashboard: only staff can insert portfolio rows,
+ // but content isn't validated by the database, so a malicious image_url
+ // must never reach an <img src> or href unescaped/unvalidated.
+ function isSafeUrl(url){
+ if(typeof url !== 'string') return false;
+ return /^https:\/\//i.test(url) || /^http:\/\//i.test(url);
+ }
+
+ async function loadPortfolio(){
+ try{
+ const res = await fetch(`${SUPABASE_URL}/rest/v1/portfolio_items?select=*&order=display_order.asc,created_at.desc`, {
+ headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+ });
+ if(!res.ok) throw new Error('load failed');
+ allItems = await res.json();
+ render();
+ }catch(err){
+ document.getElementById('galleryContent').innerHTML =
+ '<p class="loading-state">Couldn\'t load our work right now - please check back soon.</p>';
+ }
+ }
+
+ function render(){
+ let filtered = currentFilter === 'all'
+ ? allItems
+ : allItems.filter(i => (i.category || 'other') === currentFilter);
+
+ // Never attempt to render a non-http(s) image URL - content in this
+ // table isn't validated by the database, only who can write to it.
+ filtered = filtered.filter(i => isSafeUrl(i.image_url));
+
+ const wrap = document.getElementById('galleryContent');
+
+ if(!filtered.length){
+ wrap.innerHTML = '<p class="empty-state">No samples in this category yet - check back soon!</p>';
+ return;
+ }
+
+ wrap.innerHTML = `<div class="grid">${filtered.map((item, idx) => `
+ <div class="item" data-idx="${idx}">
+ <img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title || 'Sample work')}" loading="lazy">
+ <div class="caption-wrap" style="padding:8px 10px 10px;">
+ ${item.category ? `<p class="cat-label">${escapeHtml(CATEGORY_LABELS[item.category] || item.category)}</p>` : ''}
+ <p class="caption" style="margin:0;">${escapeHtml(item.title || '')}</p>
+ </div>
+ </div>
+ `).join('')}</div>`;
+
+ wrap.querySelectorAll('.item').forEach(el=>{
+ const img = el.querySelector('img');
+ // If a photo's host link ever breaks, quietly drop that card instead
+ // of showing a broken-image icon to customers.
+ img.addEventListener('error', ()=>{ el.style.display = 'none'; }, { once:true });
+ el.addEventListener('click', ()=>{
+ const item = filtered[parseInt(el.dataset.idx)];
+ openLightbox(item);
+ });
+ });
+ }
+
+ function openLightbox(item){
+ const img = document.getElementById('lightboxImg');
+ const fallback = document.getElementById('lightboxFallback');
+ if(!isSafeUrl(item.image_url)){
+ img.style.display = 'none';
+ fallback.style.display = 'block';
+ } else {
+ fallback.style.display = 'none';
+ img.style.display = 'block';
+ img.src = item.image_url;
+ img.onerror = ()=>{
+ img.style.display = 'none';
+ fallback.style.display = 'block';
+ };
+ }
+ document.getElementById('lightboxCaption').textContent = item.title || '';
+ document.getElementById('lightboxCat').textContent = CATEGORY_LABELS[item.category] || item.category || '';
+ document.getElementById('lightbox').classList.add('show');
+ }
+ document.getElementById('lightboxClose').addEventListener('click', ()=>{
+ document.getElementById('lightbox').classList.remove('show');
+ });
+ document.getElementById('lightbox').addEventListener('click', (e)=>{
+ if(e.target.id === 'lightbox') document.getElementById('lightbox').classList.remove('show');
+ });
+
+ document.querySelectorAll('.filter-chip').forEach(chip=>{
+ chip.addEventListener('click', ()=>{
+ document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+ chip.classList.add('active');
+ currentFilter = chip.dataset.filter;
+ render();
+ });
+ });
+
+ loadPortfolio();
+})();
+</script>
+
+</body>
+</html>

@@ -1,342 +1,1374 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>G1 Creative Agency — Print Order</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://mgzzpejvspfkpsegnwqk.supabase.co https://catbox.moe https://wa.me; img-src 'self' https://files.catbox.moe data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
-  <style>
-    :root{
-      --ink:#1c2b3a; --paper:#f7f5f0; --stub:#ffffff; --amber:#c9a227; --gold-dark:#8a6d1a; --green:#3a7d44; --red:#b0413e; --line:#d8d2c4; --muted:#6b7280; --radius:12px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    html,body{height:100%;background:var(--paper);color:var(--ink);margin:0}
-    body{display:flex;align-items:center;justify-content:center;padding:20px}
-    .ticket{background:var(--stub);border-radius:6px;max-width:420px;width:100%;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid var(--line);padding:18px;box-sizing:border-box}
-    .ticket::before{content:"";display:block;height:14px;margin:-18px -18px 12px;background:repeating-linear-gradient(90deg,var(--amber) 0 10px, transparent 10px 20px);opacity:.6;border-top-left-radius:6px;border-top-right-radius:6px}
-    h1{font-size:20px;margin:0 0 6px}
-    .eyebrow{color:var(--gold-dark);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
-    .step{display:none}
-    .step.active{display:block}
-    .controls{display:flex;gap:10px;margin-top:14px}
-    .btn{padding:12px 18px;border-radius:10px;font-weight:700;border:none;cursor:pointer}
-    .btn-primary{background:var(--amber);color:white}
-    .btn-secondary{background:white;border:2px solid var(--line);color:var(--ink)}
-    .btn-send{background:var(--green);color:white}
-    .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-    .tile{background:white;border:2px solid var(--line);padding:12px;border-radius:12px;text-align:center;cursor:pointer;user-select:none}
-    .tile.selected{border-color:var(--amber);background:#fff8f2}
-    .file-drop{border:2.5px dashed var(--line);background:#fbfaf7;padding:12px;border-radius:10px;position:relative}
-    .file-drop.has-file{border-color:var(--green);background:white}
-    .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
-    .progress{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
-    .progress i{display:block;height:100%;width:0;background:var(--green);transition:width .15s}
-    .dots{display:flex;gap:6px;margin-bottom:10px}
-    .dot{flex:1;height:6px;background:var(--line);border-radius:3px}
-    .dot.done{background:var(--amber)}
-    .footer{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:14px}
-    input[type="text"],input[type="file"]{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);font-size:15px}
-    .stepper{display:flex;align-items:center;gap:12px;justify-content:center}
-    .circle{width:48px;height:48px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--ink);font-weight:800}
-    .status{font-size:13px;color:var(--muted)}
-    a{color:var(--gold-dark)}
-    button:focus, .tile:focus{outline:3px solid rgba(48,78,23,.18)}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G1 Creative Agency - Print Order</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%225%22%20fill%3D%22%231c2b3a%22/%3E%3Cpath%20d%3D%22M7%205h7l3%203v11H7z%22%20fill%3D%22none%22%20stroke%3D%22%23c9a227%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M14%205v3h3%22%20fill%3D%22none%22%20stroke%3D%22%23c9a227%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
+<meta name="description" content="Order photocopying, printing, business cards, banners, stickers, and T-shirt printing from G1 Creative Agency in Sunyani. Fast, reliable service - place your order online.">
+<meta property="og:title" content="G1 Creative Agency - Place a Print Order">
+<meta property="og:description" content="Order photocopying, printing, business cards, banners, stickers, and T-shirt printing - fast and reliable, right from your phone.">
+<meta property="og:type" content="website">
+
+<style>
+ :root{
+ --ink:#1c2b3a;
+ --paper:#f7f5f0;
+ --stub:#ffffff;
+ --amber:#c9a227;
+ --gold-dark:#8a6d1a;
+ --green:#3a7d44;
+ --line:#d8d2c4;
+ --line-strong:#8e8a81;
+ --muted:#686f7d;
+ }
+ *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+ body{
+ margin:0;
+ background:var(--paper);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+ color:var(--ink);
+ display:flex;
+ justify-content:center;
+ padding:20px 12px 90px;
+ }
+ .ticket{
+ width:100%;
+ max-width:420px;
+ background:var(--stub);
+ border:1px solid var(--line);
+ border-radius:4px;
+ box-shadow:0 1px 3px rgba(0,0,0,.06);
+ position:relative;
+ overflow:hidden;
+ min-height:520px;
+ display:flex;
+ flex-direction:column;
+ }
+ .ticket::before{
+ content:"";
+ position:absolute;
+ top:0;left:0;right:0;
+ height:6px;
+ background:repeating-linear-gradient(90deg, var(--amber) 0 10px, transparent 10px 20px);
+ opacity:.6;
+ }
+ header{
+ padding:22px 22px 14px;
+ border-bottom:2px dashed var(--line);
+ }
+ .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+ .eyebrow{
+ font-size:11px;
+ letter-spacing:.14em;
+ text-transform:uppercase;
+ color:var(--amber);
+ font-weight:700;
+ margin:0 0 4px;
+ }
+ h1{font-size:20px;margin:0;font-weight:800;}
+ .dots{display:flex;gap:6px;margin-top:14px;}
+ .dot{height:6px;flex:1;border-radius:3px;background:var(--line-strong);}
+ .dot.done{background:var(--amber);}
+
+ .help-link{
+ font-size:12px;
+ font-weight:700;
+ color:var(--green);
+ text-decoration:none;
+ white-space:nowrap;
+ border:1.5px solid var(--green);
+ padding:6px 10px;
+ border-radius:20px;
+ }
+
+ .steps{flex:1;display:flex;flex-direction:column;}
+ .step{display:none;flex:1;flex-direction:column;padding:26px 22px 20px;}
+ .step.active{display:flex;}
+
+ .big-q{font-size:19px;font-weight:800;margin:0 0 4px;}
+ .sub{font-size:14px;color:var(--muted);margin:0 0 22px;}
+
+ input[type=text], textarea{
+ width:100%;
+ padding:16px 14px;
+ border:2px solid var(--line-strong);
+ border-radius:10px;
+ font-size:18px;
+ font-family:inherit;
+ background:#fff;
+ color:var(--ink);
+ }
+ input:focus, textarea:focus{
+ outline:none;
+ border-color:var(--amber);
+ box-shadow:0 0 0 3px rgba(201,162,39,.35);
+ }
+ .field-error{
+ color:#b0413e;
+ font-size:13px;
+ font-weight:700;
+ margin:8px 0 0;
+ }
+
+ .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+ .tile{
+ border:2.5px solid var(--line-strong);
+ border-radius:12px;
+ padding:18px 10px;
+ text-align:center;
+ cursor:pointer;
+ background:#fff;
+ user-select:none;
+ }
+ .tile .tile-icon{width:30px;height:30px;display:block;margin:0 auto 8px;color:var(--gold-dark,#8a6d1a);}
+ .tile.selected .tile-icon{color:var(--ink);}
+ .tile .tile-letter{font-size:26px;font-weight:800;display:block;margin-bottom:6px;color:var(--gold-dark,#8a6d1a);}
+ .tile.selected .tile-letter{color:var(--ink);}
+ .tile .label{font-size:14.5px;font-weight:700;}
+ .tile.selected{border-color:var(--amber);background:#fff8f2;}
+ .tile .sublabel{display:block;font-size:11px;color:var(--gold-dark,#8a6d1a);font-weight:700;margin-top:2px;}
+ .subtype-back{
+ font-size:13px;
+ font-weight:700;
+ color:var(--muted);
+ padding:8px 2px 12px;
+ cursor:pointer;
+ }
+
+ .stepper{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:20px;
+ margin:10px 0 6px;
+ }
+ .stepper button{
+ width:56px;height:56px;
+ border-radius:50%;
+ border:2px solid var(--ink);
+ background:#fff;
+ color:var(--ink);
+ font-size:26px;
+ font-weight:700;
+ cursor:pointer;
+ }
+ .stepper button:active{background:var(--ink);color:#fff;}
+ #copiesVal{font-size:40px;font-weight:800;min-width:70px;text-align:center;}
+
+ .file-drop{
+ position:relative;
+ border:2.5px dashed var(--line-strong);
+ border-radius:12px;
+ padding:26px 16px;
+ text-align:center;
+ background:#fbfaf7;
+ margin-bottom:14px;
+ transition:background .18s, border-color .18s;
+ }
+ .file-drop.dragover{border-color:var(--amber);background:#fff8f2;}
+ .file-drop input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+ #fileLabel{font-size:15px;font-weight:700;color:var(--muted);}
+ .file-drop.has-file{border-color:var(--green);background:#fff;}
+ .file-drop.has-file #fileLabel{color:var(--ink);}
+ .or-divider{text-align:center;font-size:12px;color:var(--muted);margin:6px 0 14px;font-weight:700;}
+ .bring-tile{
+ border:2px solid var(--line-strong);
+ border-radius:12px;
+ padding:14px;
+ text-align:center;
+ font-size:14.5px;
+ font-weight:700;
+ cursor:pointer;
+ background:#fff;
+ }
+ .bring-tile.selected{border-color:var(--green);background:#f2f8f2;color:var(--green);}
+
+ .summary-box{
+ border:2px solid var(--line);
+ border-radius:12px;
+ padding:16px;
+ font-size:14.5px;
+ line-height:2;
+ }
+ .summary-box b{font-weight:700;}
+
+ /* Visually hidden but still readable by screen readers - unlike
+ display:none, which removes content from the accessibility tree
+ entirely, this keeps it in the tree while removing it from the
+ visual layout. */
+ .sr-only{
+ position:absolute;
+ width:1px;
+ height:1px;
+ padding:0;
+ margin:-1px;
+ overflow:hidden;
+ clip:rect(0,0,0,0);
+ white-space:nowrap;
+ border:0;
+ }
+
+ .nav-row{
+ display:flex;
+ gap:10px;
+ margin-top:auto;
+ padding-top:20px;
+ }
+ .btn{
+ flex:1;
+ padding:16px;
+ border:none;
+ border-radius:10px;
+ font-size:16.5px;
+ font-weight:700;
+ cursor:pointer;
+ }
+ .btn-primary{background:var(--amber);color:var(--ink);}
+ .btn-secondary{background:#fff;color:var(--ink);border:2px solid var(--line-strong);flex:.5;}
+ .btn-send{background:var(--green);color:#fff;}
+ .btn:active{opacity:.85;}
+
+ .overlay{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:rgba(28,43,58,.6);
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+ z-index:10;
+ }
+ .overlay.show{display:flex;}
+ .overlay-card{background:#fff;border-radius:14px;padding:28px 22px 22px;max-width:340px;width:100%;text-align:center;}
+ .overlay-icon{font-size:34px;margin:0 0 8px;}
+ .overlay-card h2{font-size:19px;margin:0 0 10px;}
+ .overlay-card p{font-size:15px;color:var(--ink);line-height:1.55;margin:0 0 20px;}
+ .overlay-card button{margin-top:0;}
+ .progress{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin:12px 0 4px;}
+ .progress > i{display:block;height:100%;background:var(--green);width:0%;transition:width .15s;}
+</style>
 </head>
 <body>
-  <div id="ticket" data-shop-whatsapp="233546850197" data-upload-endpoint="https://catbox.moe/user/api.php" data-supabase-url="https://mgzzpejvspfkpsegnwqk.supabase.co" data-supabase-anon-key="eyJ...(legacy anon JWT, role=anon)">
-    <main class="ticket" role="application" aria-labelledby="title">
-      <div class="eyebrow">G1 Creative Agency</div>
-      <h1 id="title">Print Order</h1>
 
-      <div id="dots" class="dots" aria-hidden="true"></div>
+<noscript>
+ <div style="max-width:420px;margin:40px auto;padding:20px;background:#fff;border:1px solid #d8d2c4;border-radius:10px;text-align:center;font-family:sans-serif;">
+ <p style="font-weight:700;margin:0 0 8px;">This page needs JavaScript enabled.</p>
+ <p style="color:#6b7280;font-size:14px;margin:0;">Please enable JavaScript in your browser, or call/message the shop directly to place your order.</p>
+ </div>
+</noscript>
 
-      <form id="wizard" novalidate>
-        <!-- Step 1 -->
-        <section class="step" data-step="1">
-          <label for="job">What do you need?</label>
-          <input id="job" name="job" type="text" placeholder="e.g. Flyers, Business cards" aria-describedby="jobHelp" />
-          <div id="jobTiles" class="tiles" role="list">
-            <div class="tile" role="button" tabindex="0" data-value="Photocopy">🖨️<div>Photocopy</div></div>
-            <div class="tile" role="button" tabindex="0" data-value="Flyers/Posters">📄<div>Flyers</div></div>
-            <div class="tile" role="button" tabindex="0" data-value="Business Cards">💳<div>Business Cards</div></div>
-            <div class="tile" role="button" tabindex="0" data-value="ID Card">🆔<div>ID Card</div></div>
-          </div>
-        </section>
+<!-- Original line-art icon set - no emoji, no external/stock images.
+ Each <symbol> is referenced elsewhere via <use href="#icon-KEY">. -->
+<svg style="display:none" aria-hidden="true">
+<defs>
+ <symbol id="icon-doc" viewBox="0 0 24 24"><path d="M6 2h9l4 4v16H6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M15 2v4h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="8.5" y1="13" x2="15.5" y2="13" stroke="currentColor" stroke-width="1.4"/><line x1="8.5" y1="16.5" x2="15.5" y2="16.5" stroke="currentColor" stroke-width="1.4"/></symbol>
 
-        <!-- Step 2 -->
-        <section class="step" data-step="2">
-          <label>How many copies?</label>
-          <div class="stepper">
-            <button type="button" class="btn-secondary" id="dec">-</button>
-            <div class="circle" id="copiesDisplay">1</div>
-            <button type="button" class="btn-secondary" id="inc">+</button>
-          </div>
-        </section>
+ <symbol id="icon-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="2" y1="9.5" x2="22" y2="9.5" stroke="currentColor" stroke-width="1.6"/><line x1="5" y1="14.5" x2="11" y2="14.5" stroke="currentColor" stroke-width="1.4"/></symbol>
 
-        <!-- Step 3 -->
-        <section class="step" data-step="3">
-          <label>Do you have a file?</label>
-          <div id="fileDrop" class="file-drop">
-            <input id="file" name="file" type="file" accept="application/pdf,image/*" aria-label="Attach file" />
-            <div id="fileLabel">Tap to attach or drag here</div>
-          </div>
-          <div style="margin-top:10px" class="tiles">
-            <div id="bringTile" class="tile" role="button" tabindex="0" data-value="bringOwn">I'll bring it myself</div>
-            <div id="helpTile" class="tile" role="button" tabindex="0">Need help</div>
-          </div>
-        </section>
+ <symbol id="icon-idcard" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="11" r="2.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4.8 16.5c.6-1.8 2-2.7 3.2-2.7s2.6.9 3.2 2.7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="14.5" y1="9.5" x2="19.5" y2="9.5" stroke="currentColor" stroke-width="1.3"/><line x1="14.5" y1="12.5" x2="19.5" y2="12.5" stroke="currentColor" stroke-width="1.3"/></symbol>
 
-        <!-- Step 4,5,6 (color/paper/finishing) -->
-        <section class="step" data-step="4">
-          <label>Color or B&amp;W?</label>
-          <div id="colorTiles" class="tiles">
-            <div class="tile" role="button" tabindex="0" data-value="Color">🎨<div>Color</div></div>
-            <div class="tile" role="button" tabindex="0" data-value="Black &amp; White">⚫<div>B&amp;W</div></div>
-          </div>
-        </section>
+ <symbol id="icon-envelope" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 6.5l9 6.5 9-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
 
-        <section class="step" data-step="5">
-          <label>Paper size?</label>
-          <div id="sizeTiles" class="tiles">
-            <div class="tile" role="button" tabindex="0" data-value="A4 (normal size)">A4</div>
-            <div class="tile" role="button" tabindex="0" data-value="A3 (large size)">A3</div>
-            <div class="tile" role="button" tabindex="0" data-value="Not sure">Not sure</div>
-          </div>
-        </section>
+ <symbol id="icon-image" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="10" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 17l6-5 4 3.5 3-2.5 5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
 
-        <section class="step" data-step="6">
-          <label>Finishing?</label>
-          <div id="bindTiles" class="tiles">
-            <div class="tile" role="button" tabindex="0" data-value="Plain, no finishing">Plain</div>
-            <div class="tile" role="button" tabindex="0" data-value="Stapled">Stapled</div>
-            <div class="tile" role="button" tabindex="0" data-value="Spiral">Spiral</div>
-            <div class="tile" role="button" tabindex="0" data-value="Laminated">Laminated</div>
-          </div>
-        </section>
+ <symbol id="icon-stack" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14v13a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 21z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="13" x2="14.5" y2="13" stroke="currentColor" stroke-width="1.3"/><line x1="6.5" y1="16.5" x2="14.5" y2="16.5" stroke="currentColor" stroke-width="1.3"/></symbol>
 
-        <!-- Step 7 -->
-        <section class="step" data-step="7">
-          <label for="name">Your name</label>
-          <input id="name" name="name" type="text" placeholder="e.g. Ama" />
-        </section>
+ <symbol id="icon-flag" viewBox="0 0 24 24"><line x1="5" y1="2" x2="5" y2="22" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M5 4c4-2 7 2 11 0v9c-4 2-7-2-11 0z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
 
-        <!-- Step 8 Review -->
-        <section class="step" data-step="8">
-          <label>Review</label>
-          <canvas id="ticketCanvas" width="480" style="width:100%;border-radius:8px;background:transparent"></canvas>
-          <div id="summaryBox" class="visually-hidden" aria-live="polite"></div>
-        </section>
+ <symbol id="icon-tag" viewBox="0 0 24 24"><path d="M12.5 3H4a1 1 0 0 0-1 1v8.5a1 1 0 0 0 .3.7l9 9a1 1 0 0 0 1.4 0l8.2-8.2a1 1 0 0 0 0-1.4l-9-9a1 1 0 0 0-.4-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1.4" fill="currentColor" stroke="none"/></symbol>
 
-        <!-- Honeypot (anti-spam) -->
-        <input type="text" id="hp_field" name="hp_field" class="visually-hidden" autocomplete="off" tabindex="-1" />
-        <div class="controls">
-          <button type="button" class="btn btn-secondary" id="backBtn">Back</button>
-          <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
-          <button type="button" class="btn btn-send" id="sendBtn" style="display:none">Send to WhatsApp</button>
-        </div>
-      </form>
+ <symbol id="icon-wall" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="2" y1="9" x2="22" y2="9" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="14" x2="22" y2="14" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="19" x2="22" y2="19" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="4" x2="9" y2="9" stroke="currentColor" stroke-width="1.3"/><line x1="16" y1="9" x2="16" y2="14" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="14" x2="7" y2="19" stroke="currentColor" stroke-width="1.3"/></symbol>
 
-      <div id="progressWrap" style="display:none;margin-top:12px">
-        <div class="status" id="statusText">Creating ticket...</div>
-        <div class="progress" style="margin-top:8px"><i id="uploadProgress"></i></div>
-      </div>
+ <symbol id="icon-pen" viewBox="0 0 24 24"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" stroke="currentColor" stroke-width="1.4"/><line x1="4" y1="20" x2="5.5" y2="18.5" stroke="currentColor" stroke-width="1.4"/></symbol>
 
-      <div id="overlay" style="display:none;position:fixed;inset:0;background:rgba(28,43,58,.6);align-items:center;justify-content:center">
-        <div style="background:white;padding:18px;border-radius:14px;max-width:340px;margin:0 auto;text-align:center">
-          <h3>Please attach your file in the WhatsApp chat</h3>
-          <p>If the file upload failed, tap Continue to WhatsApp and attach the file manually in the chat.</p>
-          <button id="overlayContinue" class="btn btn-primary">Continue to WhatsApp</button>
-        </div>
-      </div>
+ <symbol id="icon-key" viewBox="0 0 24 24"><circle cx="7" cy="8" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="10.2" y1="10.8" x2="20" y2="20.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="15" y1="15.5" x2="17.5" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="17.3" y1="17.8" x2="19.5" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
 
-      <div class="footer">If you need help, tap "Need help" or <a id="helpLink" href="#">Talk to us</a>.</div>
-    </main>
-  </div>
+ <symbol id="icon-sparkle" viewBox="0 0 24 24"><path d="M12 2c.6 4 3 6.4 7 7-4 .6-6.4 3-7 7-.6-4-3-6.4-7-7 4-.6 6.4-3 7-7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
 
-  <script>
-    // Config
-    const ticket = document.getElementById('ticket');
-    const SHOP_WHATSAPP = ticket.dataset.shopWhatsapp;
-    const UPLOAD_ENDPOINT = ticket.dataset.uploadEndpoint;
-    const SUPABASE_URL = ticket.dataset.supabaseUrl;
-    const SUPABASE_ANON_KEY = ticket.dataset.supabaseAnonKey;
+ <symbol id="icon-shirt" viewBox="0 0 24 24"><path d="M8 3L3 6.5l2.3 3L7 8.3V21h10V8.3l1.7 1.2 2.3-3L16 3l-2 1.6a4 4 0 0 1-4 0z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
 
-    // State
-    const state = { job:'', copies:1, bringOwn:false, color:'Color', size:'A4 (normal size)', binding:'Plain, no finishing', name:'', file:null };
-    const FULL_SEQUENCE=[1,2,3,4,5,6,7,8];
-    const NO_FILE_SEQUENCE=[1,2,3,7,8];
-    function currentSequence(){ return state.bringOwn?NO_FILE_SEQUENCE:FULL_SEQUENCE }
-    let currentStepIndex=0;
-    let orderId = makeOrderId();
+ <symbol id="icon-printer" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 8V3.5h11V8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="6.5" y="14.5" width="11" height="7" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="11" x2="9.5" y2="11" stroke="currentColor" stroke-width="1.4"/></symbol>
 
-    // Elements
-    const steps = Array.from(document.querySelectorAll('.step'));
-    const dotsEl = document.getElementById('dots');
-    const nextBtn = document.getElementById('nextBtn');
-    const backBtn = document.getElementById('backBtn');
-    const sendBtn = document.getElementById('sendBtn');
-    const summaryBox = document.getElementById('summaryBox');
-    const helpLink = document.getElementById('helpLink');
-    const fileInput = document.getElementById('file');
-    const fileDrop = document.getElementById('fileDrop');
-    const fileLabel = document.getElementById('fileLabel');
-    const bringTile = document.getElementById('bringTile');
-    const helpTile = document.getElementById('helpTile');
-    const jobInput = document.getElementById('job');
-    const copiesDisplay = document.getElementById('copiesDisplay');
-    const incBtn = document.getElementById('inc');
-    const decBtn = document.getElementById('dec');
-    const canvas = document.getElementById('ticketCanvas');
-    const ctx = canvas.getContext('2d');
-    const statusText = document.getElementById('statusText');
-    const progressWrap = document.getElementById('progressWrap');
-    const uploadProgress = document.getElementById('uploadProgress');
-    const overlay = document.getElementById('overlay');
-    const overlayContinue = document.getElementById('overlayContinue');
+ <symbol id="icon-droplet" viewBox="0 0 24 24"><path d="M12 2c4 5.5 6.5 9 6.5 12.2A6.5 6.5 0 0 1 5.5 14.2C5.5 11 8 7.5 12 2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
 
-    // Accessibility helpers
-    const tiles = Array.from(document.querySelectorAll('.tile'));
-    tiles.forEach(t=>{ t.addEventListener('keydown',e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); t.click() } }); });
+ <symbol id="icon-thread" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.5 2.3"/><line x1="16" y1="4" x2="9" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="16" cy="4" r="1" fill="currentColor" stroke="none"/></symbol>
 
-    // Tiles behavior
-    document.getElementById('jobTiles').addEventListener('click',e=>{ const t = e.target.closest('.tile'); if(!t) return; jobInput.value = t.dataset.value; state.job = t.dataset.value; selectTileGroup('jobTiles', t); });
-    document.getElementById('jobTiles').addEventListener('keydown',e=>{});
+ <symbol id="icon-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.2 9.3a3 3 0 1 1 4.6 2.6c-.9.6-1.5 1-1.5 2.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17.3" r="1" fill="currentColor" stroke="none"/></symbol>
 
-    // Generic tile groups
-    function bindTileGroup(containerId, prop){ const container = document.getElementById(containerId); container.addEventListener('click', e=>{ const t=e.target.closest('.tile'); if(!t) return; state[prop]=t.dataset.value; selectTileGroup(containerId,t); }); }
-    bindTileGroup('colorTiles','color'); bindTileGroup('sizeTiles','size'); bindTileGroup('bindTiles','binding');
+ <symbol id="icon-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5C21 6.6 17 3 12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor" stroke="none"/><circle cx="9.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="14.5" cy="7" r="1.2" fill="currentColor" stroke="none"/></symbol>
 
-    function selectTileGroup(containerId, selected){ const container = document.getElementById(containerId); Array.from(container.children).forEach(c=>c.classList.toggle('selected', c===selected)); }
+ <symbol id="icon-contrast" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2.5A9.5 9.5 0 0 1 12 21.5z" fill="currentColor" stroke="none"/></symbol>
 
-    // Bring own file tile
-    bringTile.addEventListener('click', ()=>{ state.bringOwn = true; state.file = null; fileInput.value=''; fileDrop.classList.remove('has-file'); updateStepUI(); });
-    bringTile.addEventListener('keydown',e=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); bringTile.click(); } });
+ <symbol id="icon-staple" viewBox="0 0 24 24"><path d="M6 4v9a6 6 0 0 0 12 0V4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="6" y1="4" x2="6" y2="8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="18" y1="4" x2="18" y2="8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
 
-    helpTile.addEventListener('click', ()=>{ const msg = encodeURIComponent('Hi, I need help with a print order.'); window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${msg}` });
+ <symbol id="icon-spiral" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 16 0 6 6 0 1 1-12 0 4 4 0 1 1 8 0 2 2 0 1 1-4 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
 
-    helpLink.addEventListener('click', (e)=>{ e.preventDefault(); const msg = encodeURIComponent('Hi, I need help with a print order.'); window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${msg}` });
+ <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 2l8 3.5v6c0 5-3.5 8.7-8 10.5-4.5-1.8-8-5.5-8-10.5v-6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 
-    // File input
-    fileInput.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(f){ state.file = f; state.bringOwn=false; fileDrop.classList.add('has-file'); fileLabel.textContent = `Selected: ${f.name}`; } else { state.file = null; fileDrop.classList.remove('has-file'); fileLabel.textContent = 'Tap to attach or drag here'; } updateStepUI(); });
+ <symbol id="icon-ring" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
 
-    ['dragenter','dragover'].forEach(ev=>{ fileDrop.addEventListener(ev, (e)=>{ e.preventDefault(); e.stopPropagation(); fileDrop.classList.add('dragover'); }); });
-    ['dragleave','drop'].forEach(ev=>{ fileDrop.addEventListener(ev, (e)=>{ e.preventDefault(); e.stopPropagation(); fileDrop.classList.remove('dragover'); if(ev==='drop' && e.dataTransfer.files && e.dataTransfer.files[0]){ fileInput.files = e.dataTransfer.files; fileInput.dispatchEvent(new Event('change')); } }); });
+ <symbol id="icon-hem" viewBox="0 0 24 24"><path d="M3 6h18M3 6a3 3 0 0 0 3 3M3 12h18M3 12a3 3 0 0 0 3 3M3 18h18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
 
-    // Stepper
-    incBtn.addEventListener('click', ()=>{ state.copies = Math.max(1, (state.copies||1)+1); renderCopies(); });
-    decBtn.addEventListener('click', ()=>{ state.copies = Math.max(1, (state.copies||1)-1); renderCopies(); });
-    function renderCopies(){ copiesDisplay.textContent = state.copies; }
-    renderCopies();
+ <symbol id="icon-pole" viewBox="0 0 24 24"><line x1="6" y1="2" x2="6" y2="22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="9" y="5" width="12" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
 
-    // Wizard navigation
-    function rebuildDots(){ dotsEl.innerHTML=''; const seq = currentSequence(); seq.forEach((s,i)=>{ const d=document.createElement('div'); d.className = 'dot' + (i<=currentStepIndex?' done':''); dotsEl.appendChild(d); }); }
-    function showStepByIndex(idx){ currentStepIndex = idx; const seq = currentSequence(); steps.forEach(step=>{ step.classList.toggle('active', step.dataset.step==seq[idx]); }); rebuildDots(); updateButtons(); if(seq[idx]==8){ drawTicket(); sendBtn.style.display='inline-block'; nextBtn.style.display='none'; } else { sendBtn.style.display='none'; nextBtn.style.display='inline-block'; }
-      // Update summary for SR
-      summaryBox.textContent = buildPlainText();
-    }
-    function updateButtons(){ backBtn.disabled = currentStepIndex===0; }
+ <symbol id="icon-photocopy" viewBox="0 0 24 24"><rect x="3" y="9" width="15" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 9V4.5h9V9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="6" y="14.5" width="9" height="6.5" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
 
-    nextBtn.addEventListener('click', ()=>{ const seq = currentSequence(); if(currentStepIndex < seq.length-1){ currentStepIndex++; showStepByIndex(currentStepIndex); } });
-    backBtn.addEventListener('click', ()=>{ if(currentStepIndex>0){ currentStepIndex--; showStepByIndex(currentStepIndex); } });
+ <symbol id="icon-checkmark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 
-    // Start
-    showStepByIndex(0);
+ <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v9A2.5 2.5 0 0 1 18.5 17H9l-5 4v-4H5.5A2.5 2.5 0 0 1 3 14.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
 
-    // Make order id
-    function makeOrderId(){ const d=new Date(); const yy = String(d.getFullYear()).slice(-2); const mm = String(d.getMonth()+1).padStart(2,'0'); const dd = String(d.getDate()).padStart(2,'0'); const suffix = String(Math.floor(Math.random()*9000)+1000); return `PR-${yy}${mm}${dd}-${suffix}`; }
+ <symbol id="icon-paperclip" viewBox="0 0 24 24"><path d="M8 12.5l7-7a3.5 3.5 0 1 1 5 5l-9 9a5.5 5.5 0 1 1-7.8-7.8L11 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 
-    // Canvas ticket rendering (improved wrap and scaling)
-    function drawTicket(){ const dpr = window.devicePixelRatio||1; const logicalWidth = 480; canvas.width = logicalWidth * dpr; canvas.style.width = logicalWidth+'px'; ctx.scale(dpr,dpr); ctx.clearRect(0,0,canvas.width,canvas.height);
-      const pad=12; let y=pad; ctx.fillStyle = '#fff'; ctx.fillRect(0,0,logicalWidth,800);
-      ctx.fillStyle = '#8a6d1a'; ctx.font='14px  system-ui'; ctx.fillText('G1 CREATIVE AGENCY', pad, y+12);
-      y+=28; ctx.fillStyle= '#000'; ctx.font='22px bold'; ctx.fillText('Print Order', pad, y);
-      y+=30; ctx.font='12px'; ctx.fillStyle='#6b7280'; ctx.fillText(`#${orderId} · ${new Date().toLocaleString()}`, pad, y);
-      y+=14; drawDashed(pad,y+8,logicalWidth-pad); y+=18;
-      ctx.font='14px bold'; writeRow('JOB', state.job || jobInput.value || '—');
-      writeRow('COPIES', String(state.copies));
-      if(!state.bringOwn){ writeRow('COLOR', state.color); writeRow('PAPER', state.size); writeRow('FINISHING', state.binding); }
-      writeRow('FILE', state.file? state.file.name : (state.bringOwn? 'Bringing own file' : 'No file'));
-      writeRow('CUSTOMER', document.getElementById('name').value || state.name || '—');
-      drawDashed(pad,y+8,logicalWidth-pad); y+=24;
-      ctx.fillStyle = 'var(--green)'; ctx.fillStyle = '#3a7d44'; ctx.font='16px bold'; ctx.fillText('Thank you! See you at the counter.', pad, y);
+ <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9a1 1 0 0 0 1 1H17.5a1 1 0 0 0 1-1v-9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
 
-      // auto-height handled by cropping canvas size
-      function writeRow(label, value){ ctx.fillStyle='#6b7280'; ctx.font='11px bold'; ctx.fillText(label, pad, y); ctx.fillStyle='#000'; ctx.font='14px'; wrapText(value, logicalWidth - pad*2 - 80, pad+80, y - 10); y+=22 + (Math.ceil((value.length||0)/30)*12); }
-      function drawDashed(x1,y1,x2){ ctx.strokeStyle='#d8d2c4'; ctx.beginPath(); const dash=6; for(let x=x1;x<x2;x+=dash*2){ ctx.moveTo(x,y1); ctx.lineTo(Math.min(x+dash,x2),y1); } ctx.stroke(); }
-      function wrapText(text, maxW, x, startY){ const words = String(text).split(' '); let line=''; let lineHeight=14; let yy=startY+14; for(let n=0;n<words.length;n++){ const testLine = line + words[n] + ' '; const metrics = ctx.measureText(testLine); if(metrics.width > maxW && n>0){ ctx.fillText(line, x, yy); line = words[n] + ' '; yy += lineHeight; } else { line = testLine; } } ctx.fillText(line, x, yy); y = yy + 8; }
+ <symbol id="icon-send" viewBox="0 0 24 24"><path d="M2 4l19 8-19 8 4-8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
 
-    }
+ <symbol id="icon-graduation" viewBox="0 0 24 24"><path d="M2 8l10-4 10 4-10 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10.5v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="21" y1="8" x2="21" y2="14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
 
-    // Build plain text fallback
-    function buildPlainText(){ const job = state.job || jobInput.value || '—'; const name = document.getElementById('name').value || '—'; let out = `G1 Creative Agency — New Order\n------------------------\nOrder: ${orderId}\nJob: ${job}\nCopies: ${state.copies}\n`;
-      if(!state.bringOwn){ out += `Color: ${state.color}\nPaper: ${state.size}\nFinishing: ${state.binding}\n`; }
-      out += `Customer: ${name}\nFile: ${state.file? state.file.name : (state.bringOwn? 'Bringing own file' : 'No file')}`;
-      return out; }
+ <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.8 7-12.5A7 7 0 0 0 5 9.5C5 15.2 12 22 12 22z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
 
-    // Send flow
-    sendBtn.addEventListener('click', async ()=>{ // anti-spam honeypot
-      if(document.getElementById('hp_field').value){ alert('Spam detected'); return; }
-      // Simple timing check
-      const now = Date.now(); if(window._lastStart && now - window._lastStart < 1000){ alert('Please take a moment before sending.'); return; } window._lastStart = now;
-      disableSend(true);
-      progressWrap.style.display='block'; statusText.textContent='Creating ticket...'; uploadProgress.style.width='0%';
-      // draw and upload ticket image
-      let ticketLink = null; try{ const blob = await new Promise(resolve=> canvas.toBlob(resolve,'image/png')); ticketLink = await uploadFile(blob, `order-${orderId}.png`); } catch(e){ console.warn('Ticket upload failed',e); ticketLink=null; }
-      // upload customer file
-      let fileLink = null; let fileUploadFailed = false; if(state.file){ statusText.textContent='Uploading your file...'; try{ fileLink = await uploadFile(state.file, state.file.name); } catch(e){ console.warn('File upload failed',e); fileUploadFailed = true; }
-      }
-      // save to supabase (non-blocking, with retry)
-      statusText.textContent='Saving order...'; try{ await saveOrderToDashboard({ order_code: orderId, job: state.job||jobInput.value||'', copies: state.copies||1, color: state.bringOwn?null:state.color, paper_size: state.bringOwn?null:state.size, finishing: state.bringOwn?null:state.binding, customer_name: document.getElementById('name').value||'', bring_own: !!state.bringOwn, file_name: state.file?state.file.name:null, file_link: fileLink || null, ticket_link: ticketLink || null }); } catch(e){ console.warn('Supabase insert failed', e); }
-      // Build message and go to whatsapp
-      const message = buildMessage(orderId, state.job||jobInput.value||'', document.getElementById('name').value||'', !!state.file, state.file?state.file.name:'', fileLink, ticketLink);
-      disableSend(false);
-      if(fileUploadFailed){ overlay.style.display='flex'; overlayContinue.onclick = ()=>{ overlay.style.display='none'; window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${encodeURIComponent(message)}`; } }
-      else{ window.location.href=`https://wa.me/${SHOP_WHATSAPP}?text=${encodeURIComponent(message)}`; }
-    });
+ <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5.5l4 2.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 
-    function disableSend(dis){ sendBtn.disabled = dis; if(dis){ sendBtn.setAttribute('aria-busy','true'); } else { sendBtn.removeAttribute('aria-busy'); } }
+ <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M6.5 3.5c1 0 2.6 2.4 2.6 3.4s-1.5 1.7-1.5 2.7c0 1.8 3.4 5.2 5.2 5.2 1 0 1.7-1.5 2.7-1.5s3.4 1.6 3.4 2.6c0 1.4-1.7 3.1-3 3.1-3.5 0-10.5-7-10.5-10.5 0-1.3 1.7-3 3.1-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
 
-    function buildMessage(orderCode, job, name, hasFile, fileName, fileLink, ticketLink){ let lines = [];
-      lines.push('*G1 Creative Agency — New Order*'); lines.push('------------------------');
-      if(ticketLink){ lines.push(`*Order Ticket:* ${ticketLink}`); lines.push('------------------------'); }
-      lines.push(`*Order:* ${orderCode}`);
-      if(!state.bringOwn){ lines.push(`*Job:* ${job}`); lines.push(`*Copies:* ${state.copies}`); lines.push(`*Color:* ${state.color}`); lines.push(`*Paper:* ${state.size}`); lines.push(`*Finishing:* ${state.binding}`); }
-      lines.push(`*Customer:* ${name}`);
-      lines.push(`*File:* ${fileName || (state.bringOwn? 'Bringing own file' : 'No file')}`);
-      if(fileLink) lines.push(`*Download:* ${fileLink}`);
-      return lines.join('\n'); }
+ <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 6.5l9 6.5 9-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+</defs>
+</svg>
 
-    // uploadFile using XHR with progress events
-    function uploadFile(file, filename){ return new Promise((resolve,reject)=>{
-      const xhr = new XMLHttpRequest(); xhr.open('POST', UPLOAD_ENDPOINT);
-      const form = new FormData(); form.append('reqtype','fileupload'); form.append('fileToUpload', file, filename);
-      xhr.upload.addEventListener('progress',(e)=>{ if(e.lengthComputable){ const pct = Math.round(e.loaded / e.total * 100); uploadProgress.style.width = pct + '%'; } });
-      xhr.onload = ()=>{ if(xhr.status>=200 && xhr.status<300){ const text = xhr.responseText.trim(); // catbox returns URL in body
-            if(text.startsWith('http')) resolve(text); else reject(new Error('Invalid upload response')); } else { reject(new Error('Upload failed status:'+xhr.status)); } };
-      xhr.onerror = ()=>reject(new Error('Network error')); xhr.send(form);
-    }); }
 
-    // save order with simple retry/backoff (non-blocking overall)
-    async function saveOrderToDashboard(payload){ const url = `${SUPABASE_URL}/rest/v1/orders`; const headers = {'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,'Prefer':'return=minimal'}; let attempts=0; while(attempts<3){ attempts++; try{ const res = await fetch(url,{method:'POST',headers,body:JSON.stringify(payload)}); if(res.ok) return; else console.warn('Supabase returned',res.status); } catch(e){ console.warn('Supabase save error',e); } await new Promise(r=>setTimeout(r,500 * attempts)); } throw new Error('Failed to save order after retries'); }
+<div class="ticket" id="ticket"
+ data-shop-whatsapp="233546850197"
+ data-upload-endpoint="https://catbox.moe/user/api.php"
+ data-supabase-url="https://mgzzpejvspfkpsegnwqk.supabase.co"
+ data-supabase-anon-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nenpwZWp2c3Bma3BzZWdud3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NTE1MDAsImV4cCI6MjEwMjIyNzUwMH0.Ls27DGDlGjTGx5tKuExLO1lSHY3mMcK6i4-VSjVzpQk">
+ <header>
+ <div class="top-row">
+ <div>
+ <p class="eyebrow">G1 Creative Agency</p>
+ <h1>Fast &amp; Quality Print</h1>
+ </div>
+ <a class="help-link" id="helpLink" href="#"><svg class="tile-icon" aria-hidden="true" style="width:16px;height:16px;display:inline-block;margin:0 4px -3px 0;"><use href="#icon-chat"></use></svg>Talk to us</a>
+ </div>
+ <p style="font-size:12px;color:#8a6d1a;font-weight:700;margin:10px 0 0;"><svg class="tile-icon" aria-hidden="true" style="width:16px;height:16px;display:inline-block;margin:0 4px -4px 0;"><use href="#icon-graduation"></use></svg>50% off for students - just mention it below</p>
+ <div class="dots" id="dots"></div>
+ </header>
 
-    // build plain message for other uses
+ <div class="steps" id="steps">
 
-    // Small UX: enable send on review
-    // When hitting review (step 8) enable final send button
-    // also keep summaryBox updated
+ <!-- Step 1: job -->
+ <div class="step active" data-step="1">
+ <p class="big-q" id="q1-title">What do you need?</p>
+ <p class="sub" id="q1-sub">Tap something common below, or type your own.</p>
 
-    // Keyboard: next on Enter for text fields
-    ['job','name'].forEach(id=>{ const el=document.getElementById(id); el.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); nextBtn.click(); } }); });
+ <div class="tiles" id="quickJobs" style="grid-template-columns:1fr 1fr;margin-bottom:14px;"></div>
 
-    // Update UI when sequence changes (e.g., bringOwn toggled)
-    function updateStepUI(){ // ensure currentStepIndex in bounds
-      const seq = currentSequence(); if(currentStepIndex >= seq.length) currentStepIndex = seq.length-1; showStepByIndex(currentStepIndex);
-    }
+ <div id="subtypePanel" style="display:none;margin-bottom:14px;">
+ <div class="subtype-back" id="subtypeBack" tabindex="0" role="button">← Back to categories</div>
+ <div class="tiles" id="subtypeTiles" style="grid-template-columns:1fr 1fr;"></div>
+ </div>
 
-    // Simple anti-bot: timestamp on load
-    window._formStart = Date.now();
+ <input type="text" id="job" placeholder="Or type what you need">
+ <p class="field-error" id="jobError" style="display:none;">Please tell us what you need first.</p>
+ <div class="nav-row">
+ <button class="btn btn-primary" data-next>Next →</button>
+ </div>
+ </div>
 
-  </script>
+ <!-- Step 2: copies -->
+ <div class="step" data-step="2">
+ <p class="big-q">How many copies?</p>
+ <p class="sub">Use the buttons below to add or remove.</p>
+ <div class="stepper">
+ <button type="button" id="minus" aria-label="Decrease number of copies">−</button>
+ <span id="copiesVal" aria-live="polite" aria-label="Number of copies">1</span>
+ <button type="button" id="plus" aria-label="Increase number of copies">+</button>
+ </div>
+ <div class="nav-row">
+ <button class="btn btn-secondary" data-back>← Back</button>
+ <button class="btn btn-primary" data-next>Next →</button>
+ </div>
+ </div>
+
+ <!-- Step 3: file -->
+ <div class="step" data-step="3">
+ <p class="big-q">Do you have a photo or file?</p>
+ <p class="sub">If yes, choose it below. If not, that's okay too.</p>
+ <div class="file-drop" id="fileDrop">
+ <input type="file" id="file" accept="image/*,.pdf,.doc,.docx" aria-label="Choose a photo or file to print">
+ <span id="fileLabel"><svg class="tile-icon" aria-hidden="true" style="width:20px;height:20px;display:inline-block;margin:0 4px -5px 0;"><use href="#icon-paperclip"></use></svg>Tap here to choose a photo or file</span>
+ </div>
+ <div class="or-divider">or</div>
+ <div class="bring-tile" id="bringTile" tabindex="0" role="button" aria-pressed="false"><svg class="tile-icon" aria-hidden="true" style="width:18px;height:18px;display:inline-block;margin:0 4px -4px 0;"><use href="#icon-home"></use></svg>I'll bring it myself / no file needed</div>
+ <div class="nav-row">
+ <button class="btn btn-secondary" data-back>← Back</button>
+ <button class="btn btn-primary" data-next>Next →</button>
+ </div>
+ </div>
+
+ <!-- Step 4: color - shared by all non-apparel profiles / shirt color for apparel -->
+ <div class="step" data-step="4">
+ <p class="big-q" id="q4-title">Color or black &amp; white?</p>
+ <p class="sub" id="q4-sub">Tap a picture.</p>
+
+ <div class="tiles" data-profiles="standardPrint card banner stickers">
+ <div class="tile selected" data-group="color" data-val="Color" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-palette"></use></svg><span class="label">Color</span>
+ </div>
+ <div class="tile" data-group="color" data-val="Black &amp; White" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-contrast"></use></svg><span class="label">Black &amp; White</span>
+ </div>
+ </div>
+
+ <div class="tiles" data-profiles="apparel" style="display:none;">
+ <div class="tile selected" data-group="shirtColor" data-val="White" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shirt"></use></svg><span class="label">White</span>
+ </div>
+ <div class="tile" data-group="shirtColor" data-val="Black" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shirt"></use></svg><span class="label">Black</span>
+ </div>
+ <div class="tile" data-group="shirtColor" data-val="Other color" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-palette"></use></svg><span class="label">Other</span>
+ </div>
+ <div class="tile" data-group="shirtColor" data-val="Not sure" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-question"></use></svg><span class="label">Not sure</span>
+ </div>
+ </div>
+
+ <div class="nav-row">
+ <button class="btn btn-secondary" data-back>← Back</button>
+ <button class="btn btn-primary" data-next>Next →</button>
+ </div>
+ </div>
+
+ <!-- Step 5: paper size - ONLY shown for standardPrint/apparel (see currentSequence()).
+ Card, Banner, and Stickers skip this step entirely - none of them
+ are sized in A4/A3 sheet terms, so asking would be meaningless. -->
+ <div class="step" data-step="5">
+ <p class="big-q" id="q5-title">What paper size?</p>
+ <p class="sub" id="q5-sub">Not sure? Just pick "Not sure" - we'll ask you at the counter.</p>
+
+ <div class="tiles" data-profiles="standardPrint">
+ <div class="tile selected" data-group="size" data-val="A4 (normal size)" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-doc"></use></svg><span class="label">Normal (A4)</span>
+ </div>
+ <div class="tile" data-group="size" data-val="A3 (large size)" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-stack"></use></svg><span class="label">Large (A3)</span>
+ </div>
+ <div class="tile" data-group="size" data-val="Not sure" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-question"></use></svg><span class="label">Not sure</span>
+ </div>
+ </div>
+
+ <div class="tiles" data-profiles="apparel" style="display:none;">
+ <div class="tile selected" data-group="shirtSize" data-val="Small" tabindex="0" role="button" aria-pressed="true">
+ <span class="tile-letter">S</span><span class="label">Small</span>
+ </div>
+ <div class="tile" data-group="shirtSize" data-val="Medium" tabindex="0" role="button" aria-pressed="false">
+ <span class="tile-letter">M</span><span class="label">Medium</span>
+ </div>
+ <div class="tile" data-group="shirtSize" data-val="Large" tabindex="0" role="button" aria-pressed="false">
+ <span class="tile-letter">L</span><span class="label">Large</span>
+ </div>
+ <div class="tile" data-group="shirtSize" data-val="X-Large" tabindex="0" role="button" aria-pressed="false">
+ <span class="tile-letter">XL</span><span class="label">X-Large</span>
+ </div>
+ <div class="tile" data-group="shirtSize" data-val="Mixed sizes" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shirt"></use></svg><span class="label">Mixed sizes</span>
+ </div>
+ <div class="tile" data-group="shirtSize" data-val="Not sure" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-question"></use></svg><span class="label">Not sure</span>
+ </div>
+ </div>
+
+ <div class="nav-row">
+ <button class="btn btn-secondary" data-back>← Back</button>
+ <button class="btn btn-primary" data-next>Next →</button>
+ </div>
+ </div>
+
+ <!-- Step 6: finishing - genuinely different per job type, not just relabeled -->
+ <div class="step" data-step="6">
+ <p class="big-q" id="q6-title">Anything special?</p>
+ <p class="sub" id="q6-sub">Tap a picture, or skip if just plain paper is fine.</p>
+
+ <div class="tiles" data-profiles="standardPrint">
+ <div class="tile selected" data-group="binding" data-val="Plain, no finishing" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-doc"></use></svg><span class="label">Plain</span>
+ </div>
+ <div class="tile" data-group="binding" data-val="Stapled" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-staple"></use></svg><span class="label">Stapled</span>
+ </div>
+ <div class="tile" data-group="binding" data-val="Spiral bound" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-spiral"></use></svg><span class="label">Spiral bound</span>
+ </div>
+ <div class="tile" data-group="binding" data-val="Laminated" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shield"></use></svg><span class="label">Laminated</span>
+ </div>
+ </div>
+
+ <div class="tiles" data-profiles="card" style="display:none;">
+ <div class="tile selected" data-group="cardFinish" data-val="Matte" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-card"></use></svg><span class="label">Matte</span>
+ </div>
+ <div class="tile" data-group="cardFinish" data-val="Glossy" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-sparkle"></use></svg><span class="label">Glossy</span>
+ </div>
+ <div class="tile" data-group="cardFinish" data-val="Laminated" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shield"></use></svg><span class="label">Laminated</span>
+ </div>
+ <div class="tile" data-group="cardFinish" data-val="Not sure" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-question"></use></svg><span class="label">Not sure</span>
+ </div>
+ </div>
+
+ <div class="tiles" data-profiles="banner" style="display:none;">
+ <div class="tile selected" data-group="bannerFinish" data-val="Eyelets / Grommets" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-ring"></use></svg><span class="label">Eyelets</span>
+ </div>
+ <div class="tile" data-group="bannerFinish" data-val="Hemmed edges" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-hem"></use></svg><span class="label">Hemmed Edges</span>
+ </div>
+ <div class="tile" data-group="bannerFinish" data-val="Pole pocket" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-pole"></use></svg><span class="label">Pole Pocket</span>
+ </div>
+ <div class="tile" data-group="bannerFinish" data-val="Not sure" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-question"></use></svg><span class="label">Not sure</span>
+ </div>
+ </div>
+
+ <div class="tiles" data-profiles="stickers" style="display:none;">
+ <div class="tile selected" data-group="stickerFinish" data-val="Glossy" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-sparkle"></use></svg><span class="label">Glossy</span>
+ </div>
+ <div class="tile" data-group="stickerFinish" data-val="Matte" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-tag"></use></svg><span class="label">Matte</span>
+ </div>
+ <div class="tile" data-group="stickerFinish" data-val="Waterproof" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-droplet"></use></svg><span class="label">Waterproof</span>
+ </div>
+ <div class="tile" data-group="stickerFinish" data-val="Not sure" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-question"></use></svg><span class="label">Not sure</span>
+ </div>
+ </div>
+
+ <div class="tiles" data-profiles="apparel" style="display:none;">
+ <div class="tile selected" data-group="placement" data-val="Front" tabindex="0" role="button" aria-pressed="true">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shirt"></use></svg><span class="label">Front</span>
+ </div>
+ <div class="tile" data-group="placement" data-val="Back" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shirt"></use></svg><span class="label">Back</span>
+ </div>
+ <div class="tile" data-group="placement" data-val="Front and Back" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-shirt"></use></svg><span class="label">Front &amp; Back</span>
+ </div>
+ <div class="tile" data-group="placement" data-val="Not sure" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#icon-question"></use></svg><span class="label">Not sure</span>
+ </div>
+ </div>
+
+ <div class="nav-row">
+ <button class="btn btn-secondary" data-back>← Back</button>
+ <button class="btn btn-primary" data-next>Next →</button>
+ </div>
+ </div>
+
+ <!-- Step 7: name -->
+ <div class="step" data-step="7">
+ <p class="big-q">What's your name?</p>
+ <p class="sub">So we know who the order is for.</p>
+ <input type="text" id="name" placeholder="Your name">
+ <p class="field-error" id="nameError" style="display:none;">Please tell us your name.</p>
+ <div class="nav-row">
+ <button class="btn btn-secondary" data-back>← Back</button>
+ <button class="btn btn-primary" data-next>Next →</button>
+ </div>
+ </div>
+
+ <!-- Step 8: review -->
+ <div class="step" data-step="8">
+ <p class="big-q">Double-check your order</p>
+ <p class="sub">This ticket gets sent along with your order.</p>
+ <canvas id="ticketCanvas" aria-hidden="true" style="width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);margin-bottom:10px;"></canvas>
+ <div class="summary-box sr-only" id="summaryBox" aria-live="polite"></div>
+ <div class="progress" id="uploadProgress" hidden><i></i></div>
+ <p style="font-size:11.5px;color:var(--muted);line-height:1.6;margin:12px 0 0;">
+ By sending, you agree your order details are shared with us via WhatsApp and saved for order processing. See our
+ <a href="./privacy-policy.html" style="color:var(--gold-dark);font-weight:700;" target="_blank" rel="noopener">Privacy Policy</a> and
+ <a href="./terms-and-conditions.html" style="color:var(--gold-dark);font-weight:700;" target="_blank" rel="noopener">Terms</a>.
+ </p>
+ <div class="nav-row">
+ <button class="btn btn-secondary" data-back>← Back</button>
+ <button class="btn btn-send" id="sendBtn"><svg class="tile-icon" aria-hidden="true" style="width:18px;height:18px;display:inline-block;margin:0 6px -4px 0;color:#fff;"><use href="#icon-send"></use></svg>Send on WhatsApp</button>
+ </div>
+ </div>
+
+ </div>
+
+ <div style="text-align:center;font-size:11px;color:var(--muted);padding:16px 20px 18px;border-top:1px solid var(--line);line-height:2;">
+ <p style="margin:0;">
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-pin"></use></svg>Behind 3sec Kitchen, UENR, Sunyani
+ <br>
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-clock"></use></svg>Mon-Sat, 9:00 AM - 7:30 PM
+ <br>
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-phone"></use></svg>+233 53 406 8414
+ &nbsp;·&nbsp;
+ <svg class="tile-icon" aria-hidden="true" style="width:12px;height:12px;display:inline-block;margin:0 3px -1px 0;"><use href="#icon-mail"></use></svg>g1creative97@gmail.com
+ </p>
+ <p style="margin:8px 0 0;">
+ Instagram @gyankomichael &nbsp;·&nbsp; Facebook Michael Gyanko &nbsp;·&nbsp; X @michael_gy2946
+ </p>
+ <p style="margin:10px 0 0;">
+ <a href="./portfolio.html" style="color:var(--gold-dark);font-weight:700;text-decoration:none;">See our past work →</a>
+ </p>
+ <p style="margin:10px 0 0;font-size:10.5px;">
+ <a href="./privacy-policy.html" style="color:var(--muted);text-decoration:underline;">Privacy</a>
+ &nbsp;·&nbsp;
+ <a href="./terms-and-conditions.html" style="color:var(--muted);text-decoration:underline;">Terms</a>
+ &nbsp;·&nbsp;
+ <a href="./refund-policy.html" style="color:var(--muted);text-decoration:underline;">Refunds</a>
+ </p>
+ </div>
+</div>
+
+<div class="overlay" id="overlay">
+ <div class="overlay-card">
+ <svg class="tile-icon" aria-hidden="true" style="width:40px;height:40px;margin:0 auto 8px;color:var(--amber);"><use href="#icon-paperclip"></use></svg>
+ <h2>One more step</h2>
+ <p>We couldn't upload the file automatically just now. WhatsApp will open with your order - please attach <strong id="overlayFileName">your file</strong> in the chat before you press send there.</p>
+ <button class="btn btn-primary" id="overlayContinue">Continue to WhatsApp</button>
+ </div>
+</div>
+
+<script>
+ const ticket = document.getElementById('ticket');
+ const SHOP_WHATSAPP = ticket.dataset.shopWhatsapp || "233546850197";
+ const UPLOAD_ENDPOINT = ticket.dataset.uploadEndpoint || "https://catbox.moe/user/api.php";
+ const SUPABASE_URL = ticket.dataset.supabaseUrl || "";
+ const SUPABASE_ANON_KEY = ticket.dataset.supabaseAnonKey || "";
+
+ // Full path through the form. Two things vary it:
+ // - bringOwn: skips 4/5/6 entirely (nothing to ask if there's no file)
+ // - profile: card/banner/stickers skip step 5 (paper size is meaningless
+ // for them - see needsStep5())
+ const NO_FILE_SEQUENCE = [1,2,3,7,8];
+
+ let current = 1;
+
+ const state = {
+ profile: 'standardPrint', // 'standardPrint' | 'card' | 'banner' | 'stickers' | 'apparel'
+ color: "Color",
+ size: "A4 (normal size)",
+ binding: "Plain, no finishing",
+ cardFinish: "Matte",
+ bannerFinish: "Eyelets / Grommets",
+ stickerFinish: "Glossy",
+ shirtColor: "White",
+ shirtSize: "Small",
+ placement: "Front",
+ bringOwn: false
+ };
+
+ // Which profiles even ask a "size" question (step 5). Card/banner/stickers
+ // don't - none of them are meaningfully sized in A4/A3 sheet terms.
+ function needsStep5(profile){
+ return profile === 'standardPrint' || profile === 'apparel';
+ }
+
+ const PROFILE_LABELS = {
+ standardPrint: {
+ 4: { title: 'Color or black & white?', sub: 'Tap a picture.' },
+ 5: { title: 'What paper size?', sub: 'Not sure? Just pick "Not sure" - we\'ll ask you at the counter.' },
+ 6: { title: 'Anything special?', sub: 'Tap a picture, or skip if just plain paper is fine.' }
+ },
+ card: {
+ 4: { title: 'Color or black & white?', sub: 'Tap a picture.' },
+ 6: { title: 'What finish?', sub: 'Tap a picture, or Not sure if you want to decide at the counter.' }
+ },
+ banner: {
+ 4: { title: 'Color or black & white?', sub: 'Tap a picture.' },
+ 6: { title: 'How should it be finished?', sub: 'This is about how the banner is mounted/hung.' }
+ },
+ stickers: {
+ 4: { title: 'Color or black & white?', sub: 'Tap a picture.' },
+ 6: { title: 'What finish?', sub: 'Tap a picture, or Not sure if you want to decide at the counter.' }
+ },
+ apparel: {
+ 4: { title: 'What shirt color?', sub: 'Tap a picture, or choose Other if you\'re not sure yet.' },
+ 5: { title: 'What size?', sub: 'Pick one, or Mixed sizes if it\'s more than one shirt.' },
+ 6: { title: 'Where should the print go?', sub: 'Tap a picture.' }
+ }
+ };
+
+ function applyProfile(profile){
+ state.profile = profile;
+
+ // toggle every tile panel that declares which profiles it belongs to
+ document.querySelectorAll('[data-profiles]').forEach(el=>{
+ const profiles = el.dataset.profiles.split(' ');
+ el.style.display = profiles.includes(profile) ? 'grid' : 'none';
+ });
+
+ [4,5,6].forEach(step=>{
+ const labels = PROFILE_LABELS[profile][step];
+ if(!labels) return; // this profile doesn't use this step (e.g. card has no step-5 labels)
+ document.getElementById(`q${step}-title`).textContent = labels.title;
+ document.getElementById(`q${step}-sub`).textContent = labels.sub;
+ });
+ }
+
+ function currentSequence(){
+ if(state.bringOwn) return NO_FILE_SEQUENCE;
+ return needsStep5(state.profile) ? [1,2,3,4,5,6,7,8] : [1,2,3,4,6,7,8];
+ }
+
+ function renderDots(){
+ const seq = currentSequence();
+ const idx = seq.indexOf(current);
+ dotsWrap.innerHTML = '';
+ seq.forEach((_, i)=>{
+ const d = document.createElement('div');
+ d.className = 'dot' + (i <= idx ? ' done' : '');
+ dotsWrap.appendChild(d);
+ });
+ }
+
+ const dotsWrap = document.getElementById('dots');
+
+ function showStep(n){
+ document.querySelectorAll('.step').forEach(s=>{
+ s.classList.toggle('active', parseInt(s.dataset.step) === n);
+ });
+ current = n;
+ renderDots();
+ if(n === 8) buildSummary();
+ window.scrollTo(0,0);
+ }
+
+ function validateStep(n){
+ if(n === 1){
+ const ok = document.getElementById('job').value.trim().length > 0;
+ document.getElementById('jobError').style.display = ok ? 'none' : 'block';
+ return ok;
+ }
+ if(n === 7){
+ const ok = document.getElementById('name').value.trim().length > 0;
+ document.getElementById('nameError').style.display = ok ? 'none' : 'block';
+ return ok;
+ }
+ return true;
+ }
+
+ document.querySelectorAll('[data-next]').forEach(btn=>{
+ btn.addEventListener('click', ()=>{
+ if(!validateStep(current)) return;
+ const seq = currentSequence();
+ const idx = seq.indexOf(current);
+ showStep(seq[Math.min(idx+1, seq.length-1)]);
+ });
+ });
+ document.querySelectorAll('[data-back]').forEach(btn=>{
+ btn.addEventListener('click', ()=>{
+ const seq = currentSequence();
+ const idx = seq.indexOf(current);
+ showStep(seq[Math.max(idx-1, 0)]);
+ });
+ });
+
+ // quick job catalog (step 1) - simple categories select directly;
+ // categories with real variety (Card, Stickers, T-Shirt) drill into a
+ // sub-panel of specific options instead of guessing which one someone
+ // meant. Selecting a sub-option fills the job field with both the
+ // category and the specific choice, e.g. "Card - ID Card".
+ const jobInput = document.getElementById('job');
+ document.getElementById('name').addEventListener('input', (e)=>{
+ if(e.target.value.trim()) document.getElementById('nameError').style.display = 'none';
+ });
+ const quickJobsEl = document.getElementById('quickJobs');
+ const subtypePanel = document.getElementById('subtypePanel');
+ const subtypeTilesEl = document.getElementById('subtypeTiles');
+ const subtypeBack = document.getElementById('subtypeBack');
+ const q1Title = document.getElementById('q1-title');
+ const q1Sub = document.getElementById('q1-sub');
+
+ const JOB_CATALOG = [
+ { key:'photocopy', label:'Photocopy', icon:'icon-photocopy', profile:'standardPrint', job:'Photocopying' },
+ { key:'card', label:'Card', icon:'icon-card', profile:'card', subtypes:[
+ { label:'Business Card', icon:'icon-card' },
+ { label:'ID Card', icon:'icon-idcard' },
+ { label:'Invitation Card', icon:'icon-envelope' },
+ { label:'Other Card', icon:'icon-doc' }
+ ]},
+ { key:'flyers', label:'Flyers/Posters', icon:'icon-image', profile:'standardPrint', job:'Flyers / Posters' },
+ { key:'cv', label:'CV', icon:'icon-doc', profile:'standardPrint', job:'CV design/printing' },
+ { key:'handouts', label:'Handouts', icon:'icon-stack', profile:'standardPrint', job:'Handouts/Past questions' },
+ { key:'banner', label:'Banner', icon:'icon-flag', profile:'banner', job:'Banner printing' },
+ { key:'stickers', label:'Stickers', icon:'icon-tag', profile:'stickers', subtypes:[
+ { label:'Wall Stickers', icon:'icon-wall' },
+ { label:'Pen Stickers', icon:'icon-pen' },
+ { label:'Keychains', icon:'icon-key' },
+ { label:'Label Stickers', icon:'icon-tag' },
+ { label:'Other Sticker', icon:'icon-sparkle' }
+ ]},
+ { key:'tshirt', label:'T-Shirt Printing', icon:'icon-shirt', profile:'apparel', subtypes:[
+ { label:'Screen Print', icon:'icon-printer' },
+ { label:'DTF Print', icon:'icon-droplet' },
+ { label:'Embroidery', icon:'icon-thread' },
+ { label:'Not sure', icon:'icon-question' }
+ ]}
+ ];
+
+ let quickSelection = { key:null, subtypeLabel:null };
+
+ function renderQuickJobs(){
+ quickJobsEl.innerHTML = JOB_CATALOG.map(item=>{
+ const isSelected = quickSelection.key === item.key;
+ const sub = (isSelected && quickSelection.subtypeLabel)
+ ? `<span class="sublabel">${escapeHtml(quickSelection.subtypeLabel)}</span>` : '';
+ return `
+ <div class="tile${isSelected ? ' selected' : ''}" data-catkey="${item.key}"
+ tabindex="0" role="button" aria-pressed="${isSelected}">
+ <svg class="tile-icon" aria-hidden="true"><use href="#${item.icon}"></use></svg>
+ <span class="label">${escapeHtml(item.label)}</span>
+ ${sub}
+ </div>`;
+ }).join('');
+
+ quickJobsEl.querySelectorAll('.tile').forEach(tile=>{
+ const item = JOB_CATALOG.find(i => i.key === tile.dataset.catkey);
+ function activate(){
+ if(item.subtypes){
+ openSubtypePanel(item);
+ } else {
+ selectSimpleJob(item);
+ }
+ }
+ tile.addEventListener('click', activate);
+ tile.addEventListener('keydown', (e)=>{
+ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activate(); }
+ });
+ });
+ }
+
+ function selectSimpleJob(item){
+ quickSelection = { key:item.key, subtypeLabel:null };
+ jobInput.value = item.job;
+ document.getElementById('jobError').style.display = 'none';
+ applyProfile(item.profile);
+ renderQuickJobs();
+ }
+
+ function openSubtypePanel(item){
+ q1Title.textContent = item.label;
+ q1Sub.textContent = 'Pick the closest match - we can adjust details at the counter.';
+ quickJobsEl.style.display = 'none';
+ subtypePanel.style.display = 'block';
+
+ subtypeTilesEl.innerHTML = item.subtypes.map(sub => `
+ <div class="tile" data-sublabel="${escapeHtml(sub.label)}" tabindex="0" role="button" aria-pressed="false">
+ <svg class="tile-icon" aria-hidden="true"><use href="#${sub.icon}"></use></svg>
+ <span class="label">${escapeHtml(sub.label)}</span>
+ </div>`).join('');
+
+ subtypeTilesEl.querySelectorAll('.tile').forEach(tile=>{
+ function pick(){
+ quickSelection = { key:item.key, subtypeLabel: tile.dataset.sublabel };
+ jobInput.value = `${item.label} - ${tile.dataset.sublabel}`;
+ document.getElementById('jobError').style.display = 'none';
+ applyProfile(item.profile);
+ closeSubtypePanel();
+ renderQuickJobs();
+ }
+ tile.addEventListener('click', pick);
+ tile.addEventListener('keydown', (e)=>{
+ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(); }
+ });
+ });
+ }
+
+ function closeSubtypePanel(){
+ subtypePanel.style.display = 'none';
+ quickJobsEl.style.display = 'grid';
+ q1Title.textContent = 'What do you need?';
+ q1Sub.textContent = 'Tap something common below, or type your own.';
+ }
+
+ subtypeBack.addEventListener('click', closeSubtypePanel);
+ subtypeBack.addEventListener('keydown', (e)=>{
+ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); closeSubtypePanel(); }
+ });
+
+ renderQuickJobs();
+
+ // typing something different clears the quick-tile selection.
+ // A typed job mentioning "shirt" auto-switches to the apparel question
+ // set - otherwise typing doesn't change category (stays whatever was
+ // last explicitly chosen, default 'print').
+ jobInput.addEventListener('input', ()=>{
+ if(jobInput.value.trim()) document.getElementById('jobError').style.display = 'none';
+ if(quickSelection.key){
+ quickSelection = { key:null, subtypeLabel:null };
+ renderQuickJobs();
+ }
+ if(/shirt/i.test(jobInput.value)){
+ applyProfile('apparel');
+ }
+ });
+
+ // tile selection (color, size, binding)
+ function selectTile(tile){
+ const group = tile.dataset.group;
+ document.querySelectorAll(`.tile[data-group="${group}"]`).forEach(t=>{
+ t.classList.remove('selected');
+ t.setAttribute('aria-pressed', 'false');
+ });
+ tile.classList.add('selected');
+ tile.setAttribute('aria-pressed', 'true');
+ state[group] = tile.dataset.val;
+ }
+ document.querySelectorAll('.tile[data-group]').forEach(tile=>{
+ tile.addEventListener('click', ()=> selectTile(tile));
+ tile.addEventListener('keydown', (e)=>{
+ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectTile(tile); }
+ });
+ });
+
+ // copies stepper
+ let copies = 1;
+ const copiesVal = document.getElementById('copiesVal');
+ document.getElementById('plus').addEventListener('click', ()=>{
+ copies++; copiesVal.textContent = copies;
+ });
+ document.getElementById('minus').addEventListener('click', ()=>{
+ if(copies>1){ copies--; copiesVal.textContent = copies; }
+ });
+
+ // file step
+ const fileInput = document.getElementById('file');
+ const fileDrop = document.getElementById('fileDrop');
+ const fileLabel = document.getElementById('fileLabel');
+ const bringTile = document.getElementById('bringTile');
+
+ fileInput.addEventListener('change', ()=>{
+ if(fileInput.files.length){
+ state.bringOwn = false;
+ bringTile.classList.remove('selected');
+ bringTile.setAttribute('aria-pressed', 'false');
+ fileDrop.classList.add('has-file');
+ fileLabel.innerHTML = '<svg class="tile-icon" aria-hidden="true" style="width:20px;height:20px;display:inline-block;margin:0 4px -5px 0;color:var(--green);"><use href="#icon-checkmark"></use></svg>' + escapeHtml(fileInput.files[0].name);
+ }
+ });
+
+ function toggleBringOwn(){
+ state.bringOwn = true;
+ fileInput.value = '';
+ fileDrop.classList.remove('has-file');
+ fileLabel.innerHTML = '<svg class="tile-icon" aria-hidden="true" style="width:20px;height:20px;display:inline-block;margin:0 4px -5px 0;"><use href="#icon-paperclip"></use></svg>Tap here to choose a photo or file';
+ bringTile.classList.add('selected');
+ bringTile.setAttribute('aria-pressed', 'true');
+ }
+ bringTile.addEventListener('click', toggleBringOwn);
+ bringTile.addEventListener('keydown', (e)=>{
+ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleBringOwn(); }
+ });
+
+ // drag-and-drop onto the file zone
+ fileDrop.addEventListener('dragover', (e)=>{ e.preventDefault(); fileDrop.classList.add('dragover'); });
+ fileDrop.addEventListener('dragleave', ()=> fileDrop.classList.remove('dragover'));
+ fileDrop.addEventListener('drop', (e)=>{
+ e.preventDefault();
+ fileDrop.classList.remove('dragover');
+ const dropped = e.dataTransfer && e.dataTransfer.files;
+ if(dropped && dropped.length){
+ fileInput.files = dropped;
+ fileInput.dispatchEvent(new Event('change'));
+ }
+ });
+
+ function escapeHtml(str){
+ const div = document.createElement('div');
+ div.textContent = str;
+ return div.innerHTML;
+ }
+
+ function makeOrderId(){
+ const d = new Date();
+ const stamp = d.getFullYear().toString().slice(2) +
+ String(d.getMonth()+1).padStart(2,'0') +
+ String(d.getDate()).padStart(2,'0');
+ const rand = Math.floor(1000 + Math.random()*9000);
+ return `PR-${stamp}-${rand}`;
+ }
+
+ let currentOrderId = makeOrderId();
+
+ function wrapText(ctx, text, maxWidth){
+ const words = String(text).split(' ');
+ const lines = [];
+ let line = '';
+ words.forEach(word=>{
+ const test = line ? line + ' ' + word : word;
+ if(ctx.measureText(test).width > maxWidth && line){
+ lines.push(line);
+ line = word;
+ } else {
+ line = test;
+ }
+ });
+ if(line) lines.push(line);
+ return lines;
+ }
+
+ // Single source of truth for "what fields does this job type actually
+ // need, and what should they be labeled" - used by the ticket image,
+ // the review summary, the WhatsApp message, and the database payload,
+ // so all four always agree with each other.
+ function getProfileFields(s){
+ if(s.bringOwn) return [];
+ switch(s.profile){
+ case 'apparel':
+ return [
+ { label:'Shirt Color', value:s.shirtColor, dbKey:'shirt_color' },
+ { label:'Size', value:s.shirtSize, dbKey:'shirt_size' },
+ { label:'Print Placement', value:s.placement, dbKey:'print_placement' }
+ ];
+ case 'card':
+ return [
+ { label:'Color', value:s.color, dbKey:'color' },
+ { label:'Card Finish', value:s.cardFinish, dbKey:'card_finish' }
+ ];
+ case 'banner':
+ return [
+ { label:'Color', value:s.color, dbKey:'color' },
+ { label:'Banner Finish', value:s.bannerFinish, dbKey:'banner_finish' }
+ ];
+ case 'stickers':
+ return [
+ { label:'Color', value:s.color, dbKey:'color' },
+ { label:'Sticker Finish', value:s.stickerFinish, dbKey:'sticker_finish' }
+ ];
+ default: // standardPrint
+ return [
+ { label:'Color', value:s.color, dbKey:'color' },
+ { label:'Paper', value:s.size, dbKey:'paper_size' },
+ { label:'Finishing', value:s.binding, dbKey:'finishing' }
+ ];
+ }
+ }
+
+ function drawTicket(canvas, data){
+ const dpr = window.devicePixelRatio || 1;
+ const width = 480;
+ let y = 0;
+
+ // measure height first with a scratch context
+ const scratch = document.createElement('canvas').getContext('2d');
+ scratch.font = '13px monospace';
+
+ const rows = [];
+ rows.push({ label:'Job', value:data.job });
+ rows.push({ label:'Copies', value:String(data.copies) });
+ getProfileFields(data).forEach(f => rows.push({ label:f.label, value:f.value }));
+ rows.push({ label:'File', value:data.fileText });
+ rows.push({ label:'Customer', value:data.name });
+
+ // estimate height: header ~150, each row ~24 (plus wraps), footer ~70, padding
+ let estRows = 0;
+ rows.forEach(r=>{
+ const lines = wrapText(scratch, r.value, width - 40 - 100);
+ estRows += Math.max(1, lines.length);
+ });
+ const height = 210 + estRows * 24 + 90;
+
+ canvas.width = width * dpr;
+ canvas.height = height * dpr;
+ canvas.style.aspectRatio = `${width}/${height}`;
+ const ctx = canvas.getContext('2d');
+ ctx.scale(dpr, dpr);
+
+ // background
+ ctx.fillStyle = '#ffffff';
+ ctx.fillRect(0,0,width,height);
+
+ // top accent stripe
+ ctx.fillStyle = '#c9a227';
+ ctx.globalAlpha = 0.6;
+ for(let x=0;x<width;x+=20){ ctx.fillRect(x,0,10,6); }
+ ctx.globalAlpha = 1;
+
+ y = 34;
+ ctx.fillStyle = '#8a6d1a';
+ ctx.font = 'bold 11px sans-serif';
+ ctx.textBaseline = 'alphabetic';
+ ctx.fillText('G1 CREATIVE AGENCY', 24, y);
+
+ y += 26;
+ ctx.fillStyle = '#1c2b3a';
+ ctx.font = '800 22px sans-serif';
+ ctx.fillText('Print Order', 24, y);
+
+ y += 22;
+ ctx.fillStyle = '#6b7280';
+ ctx.font = '12px sans-serif';
+ ctx.fillText(`#${data.orderId} · ${data.dateStr}`, 24, y);
+
+ y += 20;
+ drawDashed(ctx, 24, y, width-24, y);
+
+ y += 26;
+ ctx.font = '13px sans-serif';
+ rows.forEach(r=>{
+ ctx.fillStyle = '#6b7280';
+ ctx.font = 'bold 12px sans-serif';
+ ctx.fillText(r.label.toUpperCase(), 24, y);
+
+ ctx.fillStyle = '#1c2b3a';
+ ctx.font = '13px sans-serif';
+ const lines = wrapText(ctx, r.value, width - 24 - 24);
+ lines.forEach((line, i)=>{
+ ctx.fillText(line, 24, y + 16 + (i*17));
+ });
+ y += 16 + (lines.length * 17) + 6;
+ });
+
+ y += 8;
+ drawDashed(ctx, 24, y, width-24, y);
+
+ y += 26;
+ ctx.fillStyle = '#3a7d44';
+ ctx.font = 'bold 13px sans-serif';
+ ctx.textAlign = 'center';
+ ctx.fillText('Thank you! See you at the counter.', width/2, y);
+ ctx.textAlign = 'left';
+
+ // outer border
+ ctx.strokeStyle = '#d8d2c4';
+ ctx.lineWidth = 1;
+ ctx.strokeRect(0.5,0.5,width-1,height-1);
+ }
+
+ function drawDashed(ctx, x1, y1, x2, y2){
+ ctx.save();
+ ctx.strokeStyle = '#d8d2c4';
+ ctx.lineWidth = 1.5;
+ ctx.setLineDash([5,4]);
+ ctx.beginPath();
+ ctx.moveTo(x1,y1);
+ ctx.lineTo(x2,y2);
+ ctx.stroke();
+ ctx.restore();
+ }
+
+ function canvasToBlob(canvas){
+ return new Promise(resolve=> canvas.toBlob(resolve, 'image/png'));
+ }
+
+ function buildSummary(){
+ const job = document.getElementById('job').value.trim() || '(not filled in)';
+ const name = document.getElementById('name').value.trim() || '(not filled in)';
+ const hasFile = fileInput.files.length > 0;
+ const fileText = hasFile ? fileInput.files[0].name : (state.bringOwn ? "I'll bring it myself" : "None");
+
+ // hidden text version, kept for screen readers (aria-live)
+ let rows = `
+ <div><b>Printing:</b> ${escapeHtml(job)}</div>
+ <div><b>Copies:</b> ${copies}</div>
+ `;
+ getProfileFields(state).forEach(f=>{
+ rows += `<div><b>${escapeHtml(f.label)}:</b> ${escapeHtml(f.value)}</div>\n`;
+ });
+ rows += `
+ <div><b>File:</b> ${escapeHtml(fileText)}</div>
+ <div><b>Name:</b> ${escapeHtml(name)}</div>
+ `;
+ document.getElementById('summaryBox').innerHTML = rows;
+
+ // visual ticket
+ const canvas = document.getElementById('ticketCanvas');
+ drawTicket(canvas, {
+ job, name, fileText,
+ copies,
+ profile: state.profile,
+ color: state.color, size: state.size, binding: state.binding,
+ cardFinish: state.cardFinish, bannerFinish: state.bannerFinish, stickerFinish: state.stickerFinish,
+ shirtColor: state.shirtColor, shirtSize: state.shirtSize, placement: state.placement,
+ bringOwn: state.bringOwn,
+ orderId: currentOrderId,
+ dateStr: new Date().toLocaleString(undefined, { dateStyle:'medium', timeStyle:'short' })
+ });
+ }
+
+ let pendingUrl = '';
+
+ const sendBtn = document.getElementById('sendBtn');
+ const sendBtnDefaultText = sendBtn.textContent;
+
+ function buildMessage(job, name, hasFile, fileName, fileLink, ticketLink){
+ let msg = `*G1 Creative Agency - New Order*\n`;
+ msg += `------------------------\n`;
+
+ if(ticketLink){
+ // ticket image already has all the details laid out nicely
+ msg += `*Order Ticket:* ${ticketLink}\n`;
+ msg += `------------------------\n`;
+ msg += `*Customer:* ${name}\n`;
+ } else {
+ // fallback: ticket image couldn't be generated/uploaded, so spell
+ // everything out as plain text instead
+ msg += `*Job:* ${job}\n`;
+ msg += `*Copies:* ${copies}\n`;
+ getProfileFields(state).forEach(f=>{
+ msg += `*${f.label}:* ${f.value}\n`;
+ });
+ msg += `------------------------\n`;
+ msg += `*Customer:* ${name}\n`;
+ }
+
+ if(hasFile && fileLink){
+ msg += `*File:* ${fileName}\n`;
+ msg += `*Download:* ${fileLink}\n`;
+ } else if(hasFile){
+ msg += `*File:* ${fileName} (attached below)\n`;
+ } else if(state.bringOwn){
+ msg += `*File:* Customer will bring it in person\n`;
+ } else {
+ msg += `*File:* None provided\n`;
+ }
+ return msg;
+ }
+
+ const uploadProgress = document.getElementById('uploadProgress');
+ const uploadProgressBar = uploadProgress.querySelector('i');
+
+ function uploadFile(file, filename){
+ return new Promise((resolve, reject)=>{
+ const formData = new FormData();
+ formData.append('reqtype', 'fileupload');
+ formData.append('fileToUpload', file, filename || file.name || 'upload');
+
+ const xhr = new XMLHttpRequest();
+ xhr.open('POST', UPLOAD_ENDPOINT);
+
+ xhr.upload.addEventListener('progress', (e)=>{
+ if(e.lengthComputable){
+ const pct = Math.round((e.loaded / e.total) * 100);
+ uploadProgressBar.style.width = pct + '%';
+ }
+ });
+
+ xhr.onload = ()=>{
+ const url = (xhr.responseText || '').trim();
+ if(xhr.status >= 200 && xhr.status < 300 && url.startsWith('http')){
+ resolve(url);
+ } else {
+ reject(new Error('upload failed'));
+ }
+ };
+ xhr.onerror = ()=> reject(new Error('upload failed'));
+ xhr.send(formData);
+ });
+ }
+
+ function saveOrderToDashboard(payload){
+ if(!SUPABASE_URL || !SUPABASE_ANON_KEY) return Promise.resolve(false);
+ return fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ 'apikey': SUPABASE_ANON_KEY,
+ 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+ 'Prefer': 'return=minimal'
+ },
+ body: JSON.stringify(payload)
+ }).then(res => res.ok).catch(()=> false);
+ }
+
+ sendBtn.addEventListener('click', async ()=>{
+ const job = document.getElementById('job').value.trim() || 'Not specified';
+ const name = document.getElementById('name').value.trim() || 'Not specified';
+ const hasFile = fileInput.files.length > 0;
+ const fileName = hasFile ? fileInput.files[0].name : '';
+
+ sendBtn.disabled = true;
+ uploadProgressBar.style.width = '0%';
+ uploadProgress.hidden = false;
+
+ // Step 1: generate + upload the ticket image (non-fatal if it fails - // we just fall back to plain text in that case).
+ sendBtn.textContent = '⏳ Creating ticket...';
+ let ticketLink = null;
+ try{
+ const ticketBlob = await canvasToBlob(document.getElementById('ticketCanvas'));
+ ticketLink = await uploadFile(ticketBlob, `order-${currentOrderId}.png`);
+ }catch(err){
+ ticketLink = null; // fall back to text summary in the message
+ }
+
+ // Step 2: if they attached a file to print, try to upload that too.
+ let fileLink = null;
+ let fileUploadFailed = false;
+ if(hasFile){
+ sendBtn.textContent = '⏳ Uploading your file...';
+ uploadProgressBar.style.width = '0%';
+ try{
+ fileLink = await uploadFile(fileInput.files[0]);
+ }catch(err){
+ fileUploadFailed = true;
+ }
+ }
+
+ // Step 3: log the order to the shop's dashboard (non-fatal - WhatsApp
+ // remains the reliable channel even if this write fails).
+ sendBtn.textContent = '⏳ Saving order...';
+ const dbPayload = {
+ order_code: currentOrderId,
+ job,
+ copies,
+ profile: state.profile,
+ job_category: state.profile === 'apparel' ? 'apparel' : 'print', // kept for older dashboards/queries
+ color: null, paper_size: null, finishing: null,
+ card_finish: null, banner_finish: null, sticker_finish: null,
+ shirt_color: null, shirt_size: null, print_placement: null,
+ customer_name: name,
+ bring_own: state.bringOwn,
+ file_name: hasFile ? fileName : null,
+ file_link: fileLink,
+ ticket_link: ticketLink
+ };
+ getProfileFields(state).forEach(f=>{ dbPayload[f.dbKey] = f.value; });
+ await saveOrderToDashboard(dbPayload);
+
+ const msg = buildMessage(job, name, hasFile, fileName, fileLink, ticketLink);
+ pendingUrl = `https://wa.me/${SHOP_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+
+ sendBtn.disabled = false;
+ sendBtn.textContent = sendBtnDefaultText;
+ uploadProgress.hidden = true;
+
+ if(fileUploadFailed){
+ // only the print-file upload failed - everything else (ticket image,
+ // order details) still went through fine, just need them to attach
+ // the file manually once WhatsApp opens.
+ document.getElementById('overlayFileName').textContent = `"${fileName}"`;
+ document.getElementById('overlay').classList.add('show');
+ } else {
+ window.location.href = pendingUrl;
+ }
+ });
+
+ document.getElementById('overlayContinue').addEventListener('click', ()=>{
+ document.getElementById('overlay').classList.remove('show');
+ window.location.href = pendingUrl;
+ });
+
+ // direct escape hatch: talk to a human, no form needed
+ document.getElementById('helpLink').addEventListener('click', (e)=>{
+ e.preventDefault();
+ window.location.href = `https://wa.me/${SHOP_WHATSAPP}?text=${encodeURIComponent("Hi, I need help with a print order.")}`;
+ });
+
+ applyProfile('standardPrint');
+ renderDots();
+</script>
+
 </body>
 </html>

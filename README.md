@@ -1,33 +1,89 @@
-# G1 Creative Agency — Print Order (Ticketer)
+# G1 Creative Agency - Print Order System
 
-This repository contains a small three-file static app (no build step) for a print shop to accept orders via a QR-code scanned customer form and a staff dashboard.
+## Files
 
-Files included:
-- `print-order.html` — Customer-facing order wizard (drop onto static hosting; contains example config values)
-- `dashboard.html` — Staff dashboard (login to Supabase required)
-- `supabase-setup.sql` — One-time schema + RLS policies for Supabase
-- `LICENSE` — MIT
-- `CHANGELOG.md` — initial import
-- `tests/` — manual test checklist and minimal Playwright notes
+```
+index.html LOCAL TESTING ONLY - do not upload this one, see below
+print-order.html customer order form - QR code should point HERE
+portfolio.html public gallery of past work
+dashboard.html staff-only order + portfolio management (password protected)
+404.html shown automatically for broken/missing links, see below
+supabase-setup.sql one-time database setup - run in Supabase SQL Editor
+serve.py optional local-only helper, see "Run it locally"
+```
 
-Quick start (deploy to Netlify Drop or GitHub Pages):
-1. Create a Supabase project and run `supabase-setup.sql` in the SQL editor.
-2. In Supabase > Authentication > Users, add a user for staff (email + password).
-3. Host `print-order.html` and `dashboard.html` as static files. They already include example `data-*` attributes with the sample Supabase URL + anon key + catbox and WhatsApp number from the spec — replace these values with your own project details if desired.
-4. Point a QR code at `print-order.html` for customer scanning. Staff use `dashboard.html` and login with the Supabase account.
+## Run it locally
 
-Security & privacy notes
-- The files are stored on catbox.moe (public URLs). Do not use this system for highly sensitive documents. If privacy is required, use Supabase Storage with protected buckets and a server-side signed URL flow.
-- The Supabase anon key is intentionally client-visible: the RLS policy in `supabase-setup.sql` only allows inserts by anon. Verify the policy after running the SQL.
-- To mitigate spam/abuse consider adding rate-limiting via a Postgres trigger or an Edge Function.
+Don't just double-click the files open in a browser - opening via `file://`
+can make the Supabase/upload requests behave unreliably in some browsers.
+Serve the folder over a real local address instead. Pick whichever you have:
 
-Improvements included in this import
-- Accessibility tweaks (lang attribute, keyboard handlers, visible focus outlines, aria-live summary)
-- Honeypot + simple timing checks to reduce bot submissions
-- Upload progress feedback and retry/backoff for Supabase insert
-- Content-Security-Policy meta tag for static hosting guidance
+**Python - with working 404 page (recommended):**
+```
+cd path/to/this/folder
+python3 serve.py 8000
+```
+This is the same as plain `http.server` but also shows `404.html` for
+missing pages, matching what happens on the real deployed site. Then open
+**http://localhost:8000**.
 
-License
-- MIT (see LICENSE)
+**Python - plain, if you don't need to test the 404 page:**
+```
+python3 -m http.server 8000
+```
+Note: this version will show its own generic error page instead of
+`404.html` - that's a limitation of the plain server, not the site itself.
 
-Manual test checklist: see tests/MANUAL.md
+**Node (if you have it):**
+```
+npx serve .
+```
+It'll print the local address to open (usually http://localhost:3000).
+
+Either way, `index.html` gives you a menu to reach the pages while testing - it's a local convenience only, not part of the actual site.
+
+## The 404 page
+
+`404.html` is picked up **automatically, with zero configuration**, by every
+major static host - Netlify, GitHub Pages, Cloudflare Pages all look for a
+file with exactly this name at the root and serve it for any broken link.
+Nothing to wire up on your end once it's deployed.
+
+## First-time database setup (only needed once, not per-device)
+
+1. Go to your Supabase project → **SQL Editor** → paste in `supabase-setup.sql` → Run.
+ Safe to re-run any time - it won't touch existing data.
+2. Supabase → **Authentication → Users → Add user** - this is the staff
+ login for `dashboard.html`. No public sign-up page exists, on purpose.
+
+## Going live (after local testing looks good)
+
+Upload these four: **`print-order.html`**, **`portfolio.html`**,
+**`dashboard.html`**, and **`404.html`**. Leave out `index.html` and
+`serve.py` - both are local-only conveniences, not part of the actual site.
+
+Drag those four files into **netlify.com/drop** (or push to GitHub Pages,
+or any static host - no build step, no server code). You'll get a public
+URL. Generate a QR code pointing at `<your-url>/print-order.html`.
+
+Don't link `dashboard.html` from anywhere public - not from
+`print-order.html`, not from `portfolio.html`, not from anywhere. Its
+address should only ever be typed in directly or bookmarked by staff.
+Login is still password-protected either way, but there's no reason to
+advertise where the admin panel lives.
+
+## What's already wired up
+
+- Orders go to WhatsApp instantly **and** save to the Supabase database for
+ the dashboard, independently - one failing doesn't block the other.
+- File/ticket-image uploads go through catbox.moe (free, no account needed)
+ and the resulting links are what actually get sent - not the raw files.
+- Job-specific questions (paper size vs shirt size vs card finish, etc.) are
+ handled by the profile system in `print-order.html` - see `JOB_CATALOG`
+ and `getProfileFields()` if you need to add another product type.
+- All icons are custom-drawn inline SVG (no emoji, no external image
+ dependency) - the sprite is near the top of each HTML file's `<body>`.
+
+See `PROJECT_SPEC.md` (if you have it from earlier) for the full technical
+breakdown of every function, and `full-source-export.md` for the complete
+current source of all four files in one place.
