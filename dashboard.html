@@ -133,25 +133,259 @@
     </section>
   </main>
 </section>
+
 <script>
 (function(){
-const body=document.body,SB=body.dataset.supabaseUrl,KEY=body.dataset.supabaseAnonKey,SK='g1_dashboard_session';let session=null,orders=[],filter='all';
-const $=id=>document.getElementById(id),auth=()=>({'apikey':KEY,'Authorization':`Bearer ${session.access_token}`}),safe=u=>typeof u==='string'&&/^https?:\/\//i.test(u),esc=s=>{const d=document.createElement('div');d.textContent=s??'';return d.innerHTML};
-function save(){localStorage.setItem(SK,JSON.stringify(session))}function clear(){localStorage.removeItem(SK)}
-$('togglePassword').onclick=()=>{const input=$('password'),visible=input.type==='text';input.type=visible?'password':'text';$('togglePassword').textContent=visible?'Show':'Hide';$('togglePassword').setAttribute('aria-pressed',String(!visible))};
-async function login(){const r=await fetch(`${SB}/auth/v1/token?grant_type=password`,{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});const d=await r.json();if(!r.ok)throw Error(d?.error_description||d?.message||'Login failed');session=d;save();show();}
-$('loginBtn').onclick=async()=>{const b=$('loginBtn');b.disabled=true;$('loginError').hidden=true;try{await login()}catch(e){$('loginError').textContent=e.message;$('loginError').hidden=false}finally{b.disabled=false}};
-$('logout').onclick=()=>{clear();location.reload()};
-async function api(path,opt={}){const r=await fetch(`${SB}/rest/v1/${path}`,{...opt,headers:{...auth(),...(opt.headers||{})}});if(r.status===401){clear();location.reload()}if(!r.ok)throw Error(await r.text()||'Request failed');return r}
-async function loadOrders(){try{orders=await (await api('orders?select=*&order=created_at.desc')).json();renderOrders()}catch(e){$('orders').innerHTML='<p class="error">Could not load orders.</p>'}}
-function renderOrders(){const list=filter==='all'?orders:orders.filter(o=>o.status===filter);if(!list.length){$('orders').innerHTML='<p class="empty">No orders yet.</p>';return}$('orders').innerHTML=list.map(o=>`<article class="rounded-xl border border-line bg-white p-4 shadow-sm"><div class="flex items-start justify-between gap-3"><div><h3 class="text-base font-bold text-ink">${esc(o.customer_name||'Customer')}</h3><p class="mt-1 text-sm text-muted">${esc(o.service || 'Custom order')}</p></div><span class="rounded-full bg-gold/15 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-gold-dark">${esc(o.status || 'new')}</span></div><div class="mt-3 flex flex-wrap gap-3 text-xs text-muted"><span>${esc(o.phone || 'No phone')}</span><span>${esc(o.location || 'No location')}</span><span>${esc(o.created_at ? new Date(o.created_at).toLocaleDateString() : 'New')}</span></div><div class="mt-4 flex gap-2"><button class="rounded-lg border border-line bg-ink/5 px-3 py-2 text-xs font-bold text-ink" data-action="view" data-id="${o.id}">View</button><button class="rounded-lg bg-gold px-3 py-2 text-xs font-bold text-ink" data-action="toggle" data-id="${o.id}">Update</button></div></article>`).join('')}
-async function uploadImage(file){if(!session?.access_token)throw Error('Not logged in');const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';const path=`${crypto.randomUUID()}.${ext}`;const r=await fetch(`${SB}/storage/v1/object/portfolio/${path}`,{method:'POST',headers:{'Content-Type':file.type||'application/octet-stream','Authorization':`Bearer ${session.access_token}`,'apikey':KEY},body:file});if(!r.ok)throw Error('Image upload failed');return `${SB}/storage/v1/object/public/portfolio/${path}`}
-async function loadPortfolio(){try{const items=await (await api('portfolio_items?select=*&order=display_order.asc,created_at.desc')).json();const valid=items.filter(i=>safe(i.image_url));$('count').textContent=String(valid.length);if(!valid.length){$('portfolio').innerHTML='<p class="empty col-span-full">No portfolio samples yet.</p>';return}$('portfolio').innerHTML=valid.map(item=>`<article class="overflow-hidden rounded-xl border border-line bg-white shadow-sm"><img src="${esc(item.image_url)}" alt="${esc(item.title||'Portfolio sample')}" class="aspect-square w-full object-cover"><div class="p-2 text-xs font-bold text-ink">${esc(item.title||'Portfolio item')}</div></article>`).join('')}catch(e){$('portfolio').innerHTML='<p class="empty col-span-full">Could not load portfolio.</p>'}}
-$('pfSubmit').onclick=async()=>{const file=$('pfFile').files[0],err=$('pfError'),btn=$('pfSubmit'),prog=$('progress');err.hidden=true;if(!file){err.textContent='Choose an image first.';err.hidden=false;return}btn.disabled=true;prog.hidden=false;try{const url=await uploadImage(file);const payload={title:$('pfTitle').value.trim()||file.name,image_url:url,category:$('pfCategory').value,display_order:Date.now()};await api('portfolio_items',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});$('pfTitle').value='';$('pfFile').value='';$('pfCategory').value='standardPrint';await loadPortfolio();}catch(e){err.textContent=e.message;err.hidden=false}finally{btn.disabled=false;prog.hidden=true}};
-function show(){$('login').hidden=true;$('app').hidden=false;loadOrders();loadPortfolio();}
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x===b));const tab=b.dataset.tab;$('ordersPanel').hidden=tab!=='orders';$('portfolioPanel').hidden=tab!=='portfolio';});
-document.querySelectorAll('#filters button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('active',x===b));filter=b.dataset.filter;renderOrders();});
-if(localStorage.getItem(SK)){try{session=JSON.parse(localStorage.getItem(SK));show();}catch{clear();}} 
+  const body = document.body;
+  const SB = body.dataset.supabaseUrl;
+  const KEY = body.dataset.supabaseAnonKey;
+  const SK = 'g1_dashboard_session';
+  
+  let session = null;
+  let orders = [];
+  let filter = 'all';
+  
+  const $ = id => document.getElementById(id);
+  const auth = () => ({
+    'apikey': KEY,
+    'Authorization': `Bearer ${session.access_token}`
+  });
+  
+  const safe = u => typeof u === 'string' && /^https?:\/\//i.test(u);
+  
+  const esc = s => {
+    const d = document.createElement('div');
+    d.textContent = s ?? '';
+    return d.innerHTML;
+  };
+  
+  function save() {
+    localStorage.setItem(SK, JSON.stringify(session));
+  }
+  
+  function clear() {
+    localStorage.removeItem(SK);
+  }
+  
+  $('togglePassword').onclick = () => {
+    const input = $('password');
+    const visible = input.type === 'text';
+    input.type = visible ? 'password' : 'text';
+    $('togglePassword').textContent = visible ? 'Show' : 'Hide';
+    $('togglePassword').setAttribute('aria-pressed', String(!visible));
+  };
+  
+  async function login() {
+    const r = await fetch(`${SB}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': KEY
+      },
+      body: JSON.stringify({
+        email: $('email').value.trim(),
+        password: $('password').value
+      })
+    });
+    
+    const d = await r.json();
+    if (!r.ok) throw Error(d?.error_description || d?.message || 'Login failed');
+    
+    session = d;
+    save();
+    show();
+  }
+  
+  $('loginBtn').onclick = async () => {
+    const b = $('loginBtn');
+    b.disabled = true;
+    $('loginError').classList.add('hidden');
+    
+    try {
+      await login();
+    } catch (e) {
+      $('loginError').textContent = e.message;
+      $('loginError').classList.remove('hidden');
+    } finally {
+      b.disabled = false;
+    }
+  };
+  
+  $('logout').onclick = () => {
+    clear();
+    location.reload();
+  };
+  
+  async function api(path, opt = {}) {
+    const r = await fetch(`${SB}/rest/v1/${path}`, {
+      ...opt,
+      headers: {
+        ...auth(),
+        ...(opt.headers || {})
+      }
+    });
+    
+    if (r.status === 401) {
+      clear();
+      location.reload();
+    }
+    
+    if (!r.ok) throw Error(await r.text() || 'Request failed');
+    return r;
+  }
+  
+  async function loadOrders() {
+    try {
+      orders = await (await api('orders?select=*&order=created_at.desc')).json();
+      renderOrders();
+    } catch (e) {
+      $('orders').innerHTML = '<p class="text-red">Could not load orders.</p>';
+    }
+  }
+  
+  function renderOrders() {
+    const list = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+    
+    if (!list.length) {
+      $('orders').innerHTML = '<p class="col-span-full py-8 text-center text-muted">No orders yet.</p>';
+      return;
+    }
+    
+    $('orders').innerHTML = list.map(o => `
+      <article class="rounded-xl border border-line bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-ink">${esc(o.customer_name || 'Customer')}</h3>
+            <p class="mt-1 text-sm text-muted">${esc(o.service || 'Custom order')}</p>
+          </div>
+          <span class="rounded-full bg-gold/15 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-gold-dark">${esc(o.status || 'new')}</span>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-3 text-xs text-muted">
+          <span>${esc(o.phone || 'No phone')}</span>
+          <span>${esc(o.location || 'No location')}</span>
+          <span>${esc(o.created_at ? new Date(o.created_at).toLocaleDateString() : 'New')}</span>
+        </div>
+      </article>
+    `).join('');
+  }
+  
+  async function uploadImage(file) {
+    if (!session?.access_token) throw Error('Not logged in');
+    
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const path = `${crypto.randomUUID()}.${ext}`;
+    
+    const r = await fetch(`${SB}/storage/v1/object/portfolio/${path}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': KEY
+      },
+      body: file
+    });
+    
+    if (!r.ok) throw Error('Image upload failed');
+    return `${SB}/storage/v1/object/public/portfolio/${path}`;
+  }
+  
+  async function loadPortfolio() {
+    try {
+      const items = await (await api('portfolio_items?select=*&order=display_order.asc,created_at.desc')).json();
+      const valid = items.filter(i => safe(i.image_url));
+      
+      $('count').textContent = String(valid.length);
+      
+      if (!valid.length) {
+        $('portfolio').innerHTML = '<p class="col-span-full py-8 text-center text-muted">No portfolio samples yet.</p>';
+        return;
+      }
+      
+      $('portfolio').innerHTML = valid.map(item => `
+        <article class="overflow-hidden rounded-xl border border-line bg-white shadow-sm">
+          <img src="${esc(item.image_url)}" alt="${esc(item.title || 'Portfolio sample')}" class="aspect-square w-full object-cover">
+          <div class="p-2 text-xs font-bold text-ink">${esc(item.title || 'Portfolio item')}</div>
+        </article>
+      `).join('');
+    } catch (e) {
+      $('portfolio').innerHTML = '<p class="col-span-full py-8 text-center text-muted">Could not load portfolio.</p>';
+    }
+  }
+  
+  $('pfSubmit').onclick = async () => {
+    const file = $('pfFile').files[0];
+    const err = $('pfError');
+    const btn = $('pfSubmit');
+    const prog = $('progress');
+    
+    err.classList.add('hidden');
+    
+    if (!file) {
+      err.textContent = 'Choose an image first.';
+      err.classList.remove('hidden');
+      return;
+    }
+    
+    btn.disabled = true;
+    prog.hidden = false;
+    
+    try {
+      const url = await uploadImage(file);
+      const payload = {
+        title: $('pfTitle').value.trim() || file.name,
+        image_url: url,
+        category: $('pfCategory').value,
+        display_order: Date.now()
+      };
+      
+      await api('portfolio_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      $('pfTitle').value = '';
+      $('pfFile').value = '';
+      $('pfCategory').value = 'standardPrint';
+      
+      await loadPortfolio();
+    } catch (e) {
+      err.textContent = e.message;
+      err.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      prog.hidden = true;
+    }
+  };
+  
+  function show() {
+    $('login').hidden = true;
+    $('app').hidden = false;
+    loadOrders();
+    loadPortfolio();
+  }
+  
+  document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('active', x === b));
+    const tab = b.dataset.tab;
+    $('ordersPanel').hidden = tab !== 'orders';
+    $('portfolioPanel').hidden = tab !== 'portfolio';
+  });
+  
+  document.querySelectorAll('#filters button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('#filters button').forEach(x => x.classList.toggle('active', x === b));
+    filter = b.dataset.filter;
+    renderOrders();
+  });
+  
+  if (localStorage.getItem(SK)) {
+    try {
+      session = JSON.parse(localStorage.getItem(SK));
+      show();
+    } catch {
+      clear();
+    }
+  }
 })();
 </script>
 </body>
