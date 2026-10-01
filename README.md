@@ -1,89 +1,108 @@
-# G1 Creative Agency - Print Order System
+# G1 Creative Agency — Website
 
-## Files
+React + Tailwind rebuild of the print shop's site: home page, order wizard,
+portfolio, staff dashboard, and policy pages, all connected with a shared
+nav/footer and React Router.
 
+## Run locally
+
+```bash
+npm install
+cp .env.example .env.local   # then fill in your real values
+npm run dev
 ```
-index.html LOCAL TESTING ONLY - do not upload this one, see below
-print-order.html customer order form - QR code should point HERE
-portfolio.html public gallery of past work
-dashboard.html staff-only order + portfolio management (password protected)
-404.html shown automatically for broken/missing links, see below
-supabase-setup.sql one-time database setup - run in Supabase SQL Editor
-serve.py optional local-only helper, see "Run it locally"
-```
 
-## Run it locally
+## Environment variables
 
-Don't just double-click the files open in a browser - opening via `file://`
-can make the Supabase/upload requests behave unreliably in some browsers.
-Serve the folder over a real local address instead. Pick whichever you have:
+Set these in Netlify (Site settings → Environment variables) and in
+`.env.local` for local dev. See `.env.example` for the full list:
 
-**Python - with working 404 page (recommended):**
-```
-cd path/to/this/folder
-python3 serve.py 8000
-```
-This is the same as plain `http.server` but also shows `404.html` for
-missing pages, matching what happens on the real deployed site. Then open
-**http://localhost:8000**.
+- `VITE_SHOP_WHATSAPP` — WhatsApp number orders get sent to
+- `VITE_UPLOAD_ENDPOINT` — only used as a fallback for local development when Supabase keys are missing. Live uploads go to Supabase Storage.
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — order database + staff login
 
-**Python - plain, if you don't need to test the 404 page:**
-```
-python3 -m http.server 8000
-```
-Note: this version will show its own generic error page instead of
-`404.html` - that's a limitation of the plain server, not the site itself.
+Without the Supabase variables, the order form still works (it sends via
+WhatsApp) but won't save a copy to the dashboard, and both the Portfolio
+and Dashboard pages will show a "not connected" state instead of crashing.
 
-**Node (if you have it):**
-```
-npx serve .
-```
-It'll print the local address to open (usually http://localhost:3000).
+## Deploy to Netlify
 
-Either way, `index.html` gives you a menu to reach the pages while testing - it's a local convenience only, not part of the actual site.
+1. Push this project to a GitHub repo.
+2. In Netlify: **Add new site → Import an existing project**, pick the repo.
+3. Build command: `npm run build`. Publish directory: `dist`.
+4. Add the environment variables above before the first deploy.
+5. `public/_redirects` is already set up so React Router's routes work on
+   refresh and direct links (not just when navigating from the home page).
 
-## The 404 page
+## What changed from the original HTML pages
 
-`404.html` is picked up **automatically, with zero configuration**, by every
-major static host - Netlify, GitHub Pages, Cloudflare Pages all look for a
-file with exactly this name at the root and serve it for any broken link.
-Nothing to wire up on your end once it's deployed.
+- **Order form**: the whole step-by-step wizard (job type, copies, file
+  upload, per-product-type questions, review ticket, WhatsApp send) was
+  ported to React. The logic — job catalog, profile-specific fields, ticket
+  drawing on canvas, Catbox upload, Supabase save, WhatsApp handoff — is the
+  same; only the UI layer changed. **This is a from-scratch rewrite, not a
+  copy-paste of tested code, so test the full flow (including a real
+  WhatsApp send and a Supabase save) before relying on it.**
+- **Secrets**: the Supabase URL/key and WhatsApp number used to sit in plain
+  HTML `data-*` attributes. They now come from environment variables
+  (`src/lib/config.js`) so they're not committed to source and can differ
+  between local/staging/production.
+- **Navigation**: every page now shares one header and footer, with working
+  links between Home, Order, Portfolio, and all three policy pages. The
+  staff Dashboard is intentionally **not** in the public nav — same as your
+  original `index.html` note ("keep that URL private, share it with staff
+  only"). It's reached at `/dashboard`.
+- **Home page**: your original `index.html` was a local testing index, not
+  a public homepage. I replaced it with an actual marketing landing page
+  (services, how-it-works, calls to action) since the site now needs one to
+  connect the other pages meaningfully.
+- **Policy pages**: same content as your drafts, plus a few additions —
+  see below.
 
-## First-time database setup (only needed once, not per-device)
+## Policy gaps — needs your decision, not mine
 
-1. Go to your Supabase project → **SQL Editor** → paste in `supabase-setup.sql` → Run.
- Safe to re-run any time - it won't touch existing data.
-2. Supabase → **Authentication → Users → Add user** - this is the staff
- login for `dashboard.html`. No public sign-up page exists, on purpose.
+These are marked `CONFIRM` right in the Terms and Refund pages, same as
+your originals:
 
-## Going live (after local testing looks good)
+- Pricing/payment timing, turnaround time, cancellation policy, refund
+  timeframe, and whether a reprint is free or chargeable when the *order
+  details* (not our printing) were wrong.
+- New: design ownership when the shop creates custom artwork (not one you
+  supplied) — can it be reused or resold elsewhere?
+- New: a liability limit clause and a governing-law/dispute clause — get
+  local legal advice on the wording before publishing.
 
-Upload these four: **`print-order.html`**, **`portfolio.html`**,
-**`dashboard.html`**, and **`404.html`**. Leave out `index.html` and
-`serve.py` - both are local-only conveniences, not part of the actual site.
+I also added, as reasonable drafts you can edit:
+- An age/capacity-to-contract line in Terms.
+- A children's-privacy line in Privacy.
+- A note in Privacy that Supabase/Catbox may store data outside Ghana
+  (cross-border transfer) — not covered in the original draft.
 
-Drag those four files into **netlify.com/drop** (or push to GitHub Pages,
-or any static host - no build step, no server code). You'll get a public
-URL. Generate a QR code pointing at `<your-url>/print-order.html`.
+**Security note, separate from policy wording:** the Supabase anon key is
+meant to be public, but it only stays safe if your Supabase Row Level
+Security policies actually restrict what an anonymous or staff request can
+read/write. Worth double-checking with whoever set up the database tables.
 
-Don't link `dashboard.html` from anywhere public - not from
-`print-order.html`, not from `portfolio.html`, not from anywhere. Its
-address should only ever be typed in directly or bookmarked by staff.
-Login is still password-protected either way, but there's no reason to
-advertise where the admin panel lives.
+## UI/UX update notes
 
-## What's already wired up
+- Fonts (Bricolage Grotesque for headings, Public Sans for text) load from Google Fonts in `index.html`; system fonts are the fallback.
+- Service rows on the home page link to `/order?job=<key>` (keys come from `JOB_CATALOG` in `src/lib/orderLogic.js`).
+- Shared button/field styles live in `src/index.css` (`.btn-primary`, `.btn-ghost`, `.btn-send`, `.field`).
+- `src/lib/orderLogic.js` and all data/WhatsApp/Supabase logic are unchanged.
+- Animations are defined in `src/index.css` (inside `prefers-reduced-motion: no-preference`, so visitors who turn motion off get none). Scroll-in effects use `src/components/Reveal.jsx`.
+- The home hero has an animated network background (`src/components/HeroBackground.jsx`, Vanta.js + Three.js). `three` is pinned to 0.134.0 because Vanta needs that older API. It loads lazily, only while the hero is on screen, and is skipped on reduced-motion, Data Saver, slow connections, low-memory phones and devices without WebGL. After `npm install`, check the build size with `npm run build`.
 
-- Orders go to WhatsApp instantly **and** save to the Supabase database for
- the dashboard, independently - one failing doesn't block the other.
-- File/ticket-image uploads go through catbox.moe (free, no account needed)
- and the resulting links are what actually get sent - not the raw files.
-- Job-specific questions (paper size vs shirt size vs card finish, etc.) are
- handled by the profile system in `print-order.html` - see `JOB_CATALOG`
- and `getProfileFields()` if you need to add another product type.
-- All icons are custom-drawn inline SVG (no emoji, no external image
- dependency) - the sprite is near the top of each HTML file's `<body>`.
+## File storage (Supabase)
 
-See `PROJECT_SPEC.md` (if you have it from earlier) for the full technical
-breakdown of every function, and `full-source-export.md` for the complete
-current source of all four files in one place.
+- Customer order files and ticket images go to the **private** `order-files` bucket (25 MB limit). Visitors can upload but not read. Orders store `sb:<path>`, and the staff dashboard asks Supabase for a 5-minute link when someone taps "View ticket" or "Download file".
+- Portfolio photos go to the **public** `portfolio` bucket (staff-only upload and delete).
+- Older orders that already have Catbox links keep working.
+- The WhatsApp message lists the order details as text and includes an "Open ticket" link (`/dashboard?order=<code>`). Staff log in, the dashboard jumps to that order and highlights it, and "View ticket" / "Download file" are one tap away. Private files have no public link.
+
+## Logo files (`public/`)
+
+- `logo-mark.png`: the G1 mark on a transparent background (header, footer, staff login).
+- `logo-full.png`: mark + "G1 Creative Agency" wordmark, transparent. Gold wordmark, so use it on dark backgrounds only.
+- `favicon.ico`, `favicon-32.png`, `favicon-192.png`, `apple-touch-icon.png`: browser tab and home-screen icons.
+- `og-image.jpg` (1200x630): for link previews. To use it, add `<meta property="og:image" content="https://YOUR-DOMAIN/og-image.jpg" />` to `index.html` (it needs your full web address).
+- These were cut out of the JPG you supplied. If you have the original vector or PNG with a transparent background, swap it in for sharper edges.
