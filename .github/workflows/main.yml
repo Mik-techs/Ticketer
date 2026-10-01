@@ -1,0 +1,35 @@
+name: Import Ticketer redesign
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  import-redesign:
+    if: github.actor != 'github-actions[bot]' && contains(github.event.head_commit.message, '[import redesign]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Extract redesign package
+        run: |
+          mkdir -p .outer .redesign
+          unzip -o Ticketer-redesign-2-file-import.zip -d .outer
+          unzip -o .outer/ticketer-redesign.zip -d .redesign
+          cp -a .redesign/. .
+          rm -rf .outer .redesign
+          rm -f Ticketer-redesign-2-file-import.zip
+
+      - name: Commit redesign
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Import Ticketer redesign" || exit 0
+          git push
