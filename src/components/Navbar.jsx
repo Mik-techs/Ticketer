@@ -23,7 +23,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/95 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-2.5">
         <Link to="/" className="group flex shrink-0 items-center gap-2.5">
-          <img src="/logo-mark.png" alt="" width="48" height="32" className="logo-mark h-8 w-auto" />
+          <img src="./logo-mark.png" alt="" width="48" height="32" className="logo-mark h-8 w-auto" />
           <span className="font-display text-base font-extrabold text-ink">G1 Creative Agency</span>
         </Link>
 

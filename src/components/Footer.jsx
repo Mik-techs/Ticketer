@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="mx-auto max-w-5xl px-5 py-10">
         <div className="grid gap-8 sm:grid-cols-3">
           <div>
-            <img src="/logo-mark.png" alt="G1 Creative Agency" width="72" height="48" loading="lazy" className="h-12 w-auto" />
+            <img src="./logo-mark.png" alt="G1 Creative Agency" width="72" height="48" loading="lazy" className="h-12 w-auto" />
             <div className="mt-2 font-display text-base font-extrabold text-ink">G1 Creative Agency</div>
             <ul className="mt-3 space-y-2 text-sm leading-relaxed text-ink">
               <li className="flex gap-2"><MapPin size={16} className="mt-0.5 shrink-0 text-gold-dark" />Behind 3sec Kitchen, UENR, Sunyani</li>
@@ -51,18 +51,3 @@ export default function Footer() {
             <h2 className="font-display text-sm font-extrabold text-ink">Pages</h2>
             <ul className="mt-3 space-y-1 text-sm">
               <li><Link to="/order" className="inline-block py-1 font-semibold text-ink hover:text-gold-dark">Start an order</Link></li>
-              <li><Link to="/portfolio" className="inline-block py-1 text-ink hover:text-gold-dark">Our work</Link></li>
-              <li><Link to="/privacy" className="inline-block py-1 text-muted underline hover:text-ink">Privacy</Link></li>
-              <li><Link to="/terms" className="inline-block py-1 text-muted underline hover:text-ink">Terms</Link></li>
-              <li><Link to="/refund" className="inline-block py-1 text-muted underline hover:text-ink">Refunds</Link></li>
-            </ul>
-          </div>
-        </div>
-
-        <p className="mt-8 border-t border-line pt-5 text-center text-[13px] text-muted">
-          © {new Date().getFullYear()} G1 Creative Agency. All rights reserved.
-        </p>
-      </div>
-    </footer>
-  )
-}
