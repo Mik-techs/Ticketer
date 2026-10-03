@@ -83,10 +83,7 @@ export default function Footer() {
             <p className="mt-5 text-sm font-bold text-ink">Follow us</p>
             <SocialLinks className="mt-2" />
 
-            <p className="mt-2 text-[13px] leading-relaxed text-muted">
-              @gyankomichael on Instagram, Michael Gyanko on Facebook,
-              @michael_gy2946 on X
-            </p>
+            
           </div>
 
           <div>
