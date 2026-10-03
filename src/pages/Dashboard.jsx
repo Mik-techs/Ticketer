@@ -112,8 +112,10 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
     setBusy(true)
 
     try {
+      const trimmedEmail = email.trim()
+      
       const res = await fetch(
-        `${SUPABASE_URL}/auth/v1/token?grant_type=password`,
+        `${SUPABASE_URL.replace(/\/$/, '')}/auth/v1/token?grant_type=password`,
         {
           method: 'POST',
           headers: {
@@ -121,7 +123,7 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
             apikey: SUPABASE_ANON_KEY,
           },
           body: JSON.stringify({
-            email: email.trim(),
+            email: trimmedEmail,
             password,
           }),
         }
@@ -129,17 +131,36 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
 
       const data = await res.json()
 
+      // Handle HTTP status codes
       if (!res.ok) {
-        console.error('Supabase login error:', data)
+        console.error(`Supabase login error (${res.status}):`, data)
 
-        throw new Error(
-          data.error_description ||
-          data.msg ||
-          data.error ||
-          'Login failed'
-        )
+        let errorMessage = 'Login failed'
+
+        if (res.status === 400) {
+          // Invalid credentials
+          errorMessage =
+            data.error_description || data.msg || data.message || 'Invalid email or password.'
+        } else if (res.status === 401) {
+          // API key rejected
+          errorMessage =
+            'Supabase rejected the API key. Check VITE_SUPABASE_ANON_KEY in Netlify.'
+        } else if (res.status === 429) {
+          // Rate limited
+          errorMessage = 'Too many login attempts. Please wait a while and try again.'
+        } else {
+          // Other errors
+          const supabaseMsg =
+            data.error_description || data.msg || data.message || data.error
+          errorMessage = supabaseMsg
+            ? `Error ${res.status}: ${supabaseMsg}`
+            : `Error ${res.status}: Login failed`
+        }
+
+        throw new Error(errorMessage)
       }
 
+      // Verify tokens exist
       if (!data.access_token || !data.refresh_token) {
         console.error('Unexpected Supabase response:', data)
         throw new Error('Supabase did not return a valid login session.')
