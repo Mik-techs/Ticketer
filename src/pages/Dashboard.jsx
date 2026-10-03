@@ -104,6 +104,7 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [showPw, setShowPw] = useState(false)
+  const [diagInfo, setDiagInfo] = useState(null)
 
   const submit = async (e) => {
     e.preventDefault()
@@ -114,8 +115,16 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
     try {
       const trimmedEmail = email.trim()
       
+      // TEMPORARY DIAGNOSTIC: Capture URL info for display
+      const normalizedUrl = SUPABASE_URL.replace(/\/$/, '')
+      const authEndpoint = `${normalizedUrl}/auth/v1/token?grant_type=password`
+      setDiagInfo({ normalizedUrl, authEndpoint })
+      
+      console.log('[LOGIN DIAGNOSTIC] Normalized SUPABASE_URL:', normalizedUrl)
+      console.log('[LOGIN DIAGNOSTIC] Auth endpoint being requested:', authEndpoint)
+      
       const res = await fetch(
-        `${SUPABASE_URL.replace(/\/$/, '')}/auth/v1/token?grant_type=password`,
+        authEndpoint,
         {
           method: 'POST',
           headers: {
@@ -148,6 +157,10 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
         } else if (res.status === 429) {
           // Rate limited
           errorMessage = 'Too many login attempts. Please wait a while and try again.'
+        } else if (res.status === 404) {
+          // Path error
+          errorMessage =
+            'Supabase endpoint not found (404). Check your VITE_SUPABASE_URL format in Netlify.'
         } else {
           // Other errors
           const supabaseMsg =
@@ -217,6 +230,17 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
         >
           {error}
         </p>
+      )}
+
+      {/* TEMPORARY DIAGNOSTIC DISPLAY - Remove after debugging */}
+      {diagInfo && (
+        <div className="mt-4 rounded-lg bg-blue/10 px-3 py-2.5 text-left text-[12px] font-mono text-blue-dark border border-blue/30">
+          <p className="font-bold mb-1">🔍 TEMPORARY DIAGNOSTIC INFO</p>
+          <p className="break-all">Supabase URL:</p>
+          <p className="break-all font-semibold mb-2">{diagInfo.normalizedUrl || '(empty)'}</p>
+          <p className="break-all">Auth endpoint:</p>
+          <p className="break-all font-semibold">{diagInfo.authEndpoint || '(empty)'}</p>
+        </div>
       )}
 
       <form onSubmit={submit} className="mt-5 text-left">
