@@ -104,7 +104,6 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [showPw, setShowPw] = useState(false)
-  const [diagInfo, setDiagInfo] = useState(null)
 
   const submit = async (e) => {
     e.preventDefault()
@@ -114,15 +113,10 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
 
     try {
       const trimmedEmail = email.trim()
-      
-      // TEMPORARY DIAGNOSTIC: Capture URL info for display
+
       const normalizedUrl = SUPABASE_URL.replace(/\/$/, '')
       const authEndpoint = `${normalizedUrl}/auth/v1/token?grant_type=password`
-      setDiagInfo({ normalizedUrl, authEndpoint })
-      
-      console.log('[LOGIN DIAGNOSTIC] Normalized SUPABASE_URL:', normalizedUrl)
-      console.log('[LOGIN DIAGNOSTIC] Auth endpoint being requested:', authEndpoint)
-      
+
       const res = await fetch(
         authEndpoint,
         {
@@ -232,17 +226,6 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
         </p>
       )}
 
-      {/* TEMPORARY DIAGNOSTIC DISPLAY - Remove after debugging */}
-      {diagInfo && (
-        <div className="mt-4 rounded-lg bg-blue/10 px-3 py-2.5 text-left text-[12px] font-mono text-blue-dark border border-blue/30">
-          <p className="font-bold mb-1">🔍 TEMPORARY DIAGNOSTIC INFO</p>
-          <p className="break-all">Supabase URL:</p>
-          <p className="break-all font-semibold mb-2">{diagInfo.normalizedUrl || '(empty)'}</p>
-          <p className="break-all">Auth endpoint:</p>
-          <p className="break-all font-semibold">{diagInfo.authEndpoint || '(empty)'}</p>
-        </div>
-      )}
-
       <form onSubmit={submit} className="mt-5 text-left">
         <label
           htmlFor="login-email"
@@ -342,59 +325,63 @@ function DashboardScreen({ session, onExpire, onLogout }) {
           },
         }
       )
-    } catch {
-      showToast("Can't refresh orders — check your connection.", true)
-      return
-    }
 
-    if (res.status === 401) {
-      onExpire()
-      return
-    }
+      if (!res.ok) {
+        const data = await res.json()
+        console.error(`Supabase fetch error (${res.status}):`, data)
 
-    if (!res.ok) {
-      showToast("Couldn't refresh orders — please try again.", true)
-      return
-    }
+        if (res.status === 401) {
+          showToast('Your session has expired. Please log in again.', true)
+          onExpire()
+        }
 
-    setOrders(await res.json())
-    setUpdatedAt(new Date())
+        return
+      }
+
+      const data = await res.json()
+      setOrders(Array.isArray(data) ? data : [])
+      setUpdatedAt(new Date().toISOString())
+    } catch (err) {
+      console.error('Fetch orders error:', err)
+      showToast('Could not load orders. Please try again.', true)
+    }
   }
 
   useEffect(() => {
     fetchOrders()
 
-    pollRef.current = setInterval(fetchOrders, 15000)
+    const intervalId = setInterval(fetchOrders, 5000)
 
-    return () => clearInterval(pollRef.current)
+    pollRef.current = intervalId
+
+    return () => clearInterval(intervalId)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
-    if (!openCode || !updatedAt) return
+    if (openCode && orders.length > 0) {
+      const order = orders.find((o) => o.id === openCode)
 
-    if (orders.some((o) => o.order_code === openCode)) {
-      setTab('orders')
-      setFilter('all')
-      setHighlightCode(openCode)
+      if (order) {
+        const element = document.querySelector(`[data-order-id="${openCode}"]`)
 
-      setTimeout(() => {
-        document
-          .getElementById(`order-${openCode}`)
-          ?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          })
-      }, 100)
-    } else {
-      showToast(
-        `Order #${openCode} isn't here yet. It may still be arriving.`,
-        true
-      )
+        setTimeout(
+          () =>
+            element?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            })
+        , 100)
+      } else {
+        showToast(
+          `Order #${openCode} isn't here yet. It may still be arriving.`,
+          true
+        )
+      }
+
+      setOpenCode(null)
     }
-
-    setOpenCode(null)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatedAt])
@@ -420,69 +407,86 @@ function DashboardScreen({ session, onExpire, onLogout }) {
           "Couldn't update that order — please try again.",
           true
         )
-      }
-    } catch {
-      showToast(
-        "Couldn't update that order — check your connection.",
-        true
-      )
-    }
 
-    fetchOrders()
+        if (res.status === 401) onExpire()
+
+        return
+      }
+
+      showToast(`Order status updated to "${status}".`)
+      await fetchOrders()
+    } catch (err) {
+      console.error('Update status error:', err)
+      showToast('Could not update status. Please try again.', true)
+    }
   }
 
-  const filtered =
-    filter === 'all'
-      ? orders
-      : orders.filter((o) => o.status === filter)
-
   return (
-    <div className="min-h-screen bg-paper">
-      <div className="flex items-center justify-between border-b border-line bg-white px-5 py-4">
-        <div>
-          <div className="text-[13px] font-semibold text-gold-dark">
-            G1 Creative Agency
+    <div className="min-h-screen bg-gradient-to-br from-paper to-[#ebe5db] pb-16">
+      <div className="border-b border-line bg-white px-5 py-3.5 sm:px-8 sm:py-4">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo-mark.png"
+              alt="G1 Creative Agency"
+              width="48"
+              height="32"
+              className="h-8 w-auto"
+            />
+
+            <div className="hidden sm:block">
+              <h2 className="text-sm font-extrabold text-ink">
+                Orders dashboard
+              </h2>
+
+              <p className="text-[11px] text-muted">
+                Updated {updatedAt ? formatTime(updatedAt) : 'loading…'}
+              </p>
+            </div>
           </div>
 
-          <h1 className="text-xl font-extrabold text-ink">
-            {tab === 'orders' ? 'Orders' : 'Portfolio'}
-          </h1>
+          <button
+            onClick={onLogout}
+            className="px-3 py-1.5 text-sm font-bold text-muted hover:text-ink"
+            title="Log out"
+          >
+            <Icons.LogOut size={16} />
+          </button>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-4xl space-y-5 px-5 py-6 sm:px-8 sm:py-8">
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`px-4 py-2 text-sm font-bold rounded-full transition ${
+                filter === f.key
+                  ? 'bg-ink text-gold'
+                  : 'bg-white border border-line text-ink hover:border-ink'
+              }`}
+            >
+              {f.label}
+
+              <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/30 text-xs font-semibold">
+                {filter === f.key
+                  ? orders.length
+                  : f.key === 'all'
+                    ? orders.length
+                    : orders.filter((o) => o.status === f.key).length}
+              </span>
+            </button>
+          ))}
         </div>
 
-        <button
-          onClick={onLogout}
-          className="btn-ghost min-h-[44px] px-4 text-sm"
-        >
-          Log out
-        </button>
-      </div>
-
-      <div className="flex gap-1 border-b border-line bg-white px-5 pt-1">
-        {[
-          { key: 'orders', label: 'Orders' },
-          { key: 'portfolio', label: 'Portfolio' },
-        ].map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={[
-              'min-h-[44px] rounded-t-lg px-4 text-[15px] font-bold',
-              tab === t.key
-                ? 'border-b-2 border-gold-dark text-ink'
-                : 'text-muted hover:text-ink',
-            ].join(' ')}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="mx-auto max-w-3xl px-5 py-6">
-        {tab === 'orders' ? (
+        {tab === 'orders' && (
           <OrdersTab
-            filter={filter}
-            setFilter={setFilter}
-            orders={filtered}
+            orders={
+              filter === 'all'
+                ? orders
+                : orders.filter((o) => o.status === filter)
+            }
             counts={orders.reduce(
               (c, o) => ({
                 ...c,
@@ -526,85 +530,128 @@ function DashboardScreen({ session, onExpire, onLogout }) {
 const FILTERS = [
   { key: 'all', label: 'All' },
   { key: 'new', label: 'New' },
-  { key: 'in_progress', label: 'In progress' },
-  { key: 'done', label: 'Done' },
+  { key: 'pending', label: 'In Progress' },
+  { key: 'completed', label: 'Completed' },
 ]
 
-function OrdersTab({
-  filter,
-  setFilter,
-  orders,
-  counts,
-  updatedAt,
-  onUpdateStatus,
-  session,
-  onFileError,
-  highlightCode,
-}) {
+function OrdersTab({ orders, counts, updatedAt, onUpdateStatus, session, highlightCode, onFileError }) {
+  if (orders.length === 0) {
+    return (
+      <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-line bg-white p-5 text-center">
+        <p className="text-sm text-muted">No orders yet.</p>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            aria-pressed={filter === f.key}
-            className={[
-              'min-h-[44px] rounded-full px-4 text-sm font-semibold',
-              filter === f.key
-                ? 'bg-ink text-white'
-                : 'border border-line bg-white text-muted hover:text-ink',
-            ].join(' ')}
-          >
-            {f.label}{' '}
-            <span
-              className={
-                filter === f.key
-                  ? 'text-white/70'
-                  : 'text-muted'
-              }
-            >
-              {counts[f.key] || 0}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <p className="mt-3 text-[13px] text-muted">
-        {updatedAt
-          ? `Updated ${updatedAt.toLocaleTimeString(undefined, {
-              timeStyle: 'short',
-            })}. `
-          : ''}
-        New orders appear here automatically.
-      </p>
-
-      <div className="mt-4 space-y-3">
-        {orders.length === 0 && (
-          <div className="rounded-xl border-[1.5px] border-dashed border-line-strong py-12 text-center text-[15px] text-muted">
-            {filter === 'all'
-              ? 'No orders yet. New ones show up here as soon as they come in.'
-              : `No ${filter.replace('_', ' ')} orders right now.`}
-          </div>
-        )}
-
-        {orders.map((o) => (
-          <OrderCard
-            key={o.id}
-            order={o}
-            onUpdateStatus={onUpdateStatus}
-            session={session}
-            onFileError={onFileError}
-            highlighted={o.order_code === highlightCode}
-          />
-        ))}
-      </div>
+    <div className="space-y-4">
+      {orders.map((order) => (
+        <OrderCard
+          key={order.id}
+          order={order}
+          onUpdateStatus={onUpdateStatus}
+          session={session}
+          onFileError={onFileError}
+        />
+      ))}
     </div>
   )
 }
 
-const isStored = (v) =>
-  typeof v === 'string' && v.startsWith('sb:')
+function OrderCard({ order, onUpdateStatus, session, onFileError }) {
+  const [updating, setUpdating] = useState(false)
+
+  const toggleStatus = async () => {
+    setUpdating(true)
+
+    const newStatus = order.status === 'completed' ? 'pending' : 'completed'
+
+    await onUpdateStatus(order.id, newStatus)
+
+    setUpdating(false)
+  }
+
+  const displayFiles = order.file_url
+    ? [{ stored: order.file_url, name: order.file_name || 'Uploaded file' }]
+    : []
+
+  return (
+    <div
+      data-order-id={order.id}
+      className="rounded-lg border border-line bg-white p-5 shadow-sm hover:shadow-md transition"
+    >
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <div className="text-xs font-bold uppercase tracking-wider text-muted mb-1">
+            Order #{order.id.slice(0, 8)}
+          </div>
+
+          <h3 className="text-lg font-bold text-ink">
+            {order.item || 'Untitled order'}
+          </h3>
+
+          <div className="mt-2 space-y-1 text-sm text-muted">
+            <p>
+              <span className="font-semibold text-ink">{order.copies || 1}</span> copies
+              {order.color && ` · ${order.color}`}
+              {order.paper && ` · ${order.paper}`}
+              {order.finishing && ` · ${order.finishing}`}
+            </p>
+
+            {order.name && (
+              <p>
+                Ordered by <span className="font-semibold text-ink">{order.name}</span>
+              </p>
+            )}
+
+            <p className="pt-1">
+              {formatTime(order.created_at)}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span
+            className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold ${
+              order.status === 'completed'
+                ? 'bg-green/15 text-green-dark'
+                : 'bg-gold/15 text-gold-dark'
+            }`}
+          >
+            {order.status === 'completed' ? 'Completed' : 'Pending'}
+          </span>
+
+          <button
+            onClick={toggleStatus}
+            disabled={updating}
+            className="px-2 py-1 text-xs font-bold text-blue hover:text-blue-dark disabled:opacity-50"
+          >
+            {order.status === 'completed' ? 'Mark pending' : 'Mark complete'}
+          </button>
+        </div>
+      </div>
+
+      {displayFiles.length > 0 && (
+        <div className="border-t border-line pt-3 mt-3">
+          <div className="text-xs font-bold text-muted mb-2">Files:</div>
+
+          <div className="space-y-2">
+            {displayFiles.map((file, idx) => (
+              <StoredFileLink
+                key={idx}
+                stored={file.stored}
+                session={session}
+                label={file.name}
+                Icon={Icons.FileText}
+                onError={onFileError}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function StoredFileLink({
   stored,
@@ -647,547 +694,102 @@ function StoredFileLink({
       if (tab) tab.location.href = url
       else window.location.href = url
     } catch {
-      if (tab) tab.close()
-      onError()
-    } finally {
+      onError?.()
       setBusy(false)
     }
   }
 
   return (
     <button
-      type="button"
       onClick={open}
       disabled={busy}
-      className="inline-flex min-h-[44px] items-center gap-1.5 underline disabled:opacity-60"
+      className="flex items-center gap-2 text-sm font-semibold text-blue hover:text-blue-dark disabled:opacity-50"
     >
-      <Icon size={16} />
-      {busy ? 'Opening...' : label}
+      {Icon && <Icon size={16} />}
+      {label}
     </button>
   )
 }
 
-function OrderCard({
-  order: o,
-  onUpdateStatus,
-  session,
-  onFileError,
-  highlighted,
-}) {
-  const profile =
-    o.profile ||
-    (o.job_category === 'apparel'
-      ? 'apparel'
-      : 'standardPrint')
-
-  const Icon = PROFILE_ICON[profile]
-    ? Icons[PROFILE_ICON[profile]]
-    : null
-
-  const details = [['Copies', o.copies]]
-
-  if (!o.bring_own) {
-    if (profile === 'apparel') {
-      if (o.shirt_color)
-        details.push(['Shirt Color', o.shirt_color])
-      if (o.shirt_size)
-        details.push(['Size', o.shirt_size])
-      if (o.print_placement)
-        details.push(['Placement', o.print_placement])
-    } else if (profile === 'card') {
-      if (o.color) details.push(['Color', o.color])
-      if (o.card_finish)
-        details.push(['Card Finish', o.card_finish])
-    } else if (profile === 'banner') {
-      if (o.color) details.push(['Color', o.color])
-      if (o.banner_finish)
-        details.push(['Banner Finish', o.banner_finish])
-    } else if (profile === 'stickers') {
-      if (o.color) details.push(['Color', o.color])
-      if (o.sticker_finish)
-        details.push(['Sticker Finish', o.sticker_finish])
-    } else {
-      if (o.color) details.push(['Color', o.color])
-      if (o.paper_size)
-        details.push(['Paper', o.paper_size])
-      if (o.finishing)
-        details.push(['Finishing', o.finishing])
-    }
-  }
-
-  details.push(['Customer', o.customer_name])
-  details.push([
-    'File',
-    o.bring_own
-      ? 'Bringing in person'
-      : o.file_name || '—',
-  ])
-
-  const nextAction = {
-    new: {
-      label: 'Start order',
-      status: 'in_progress',
-      primary: true,
-    },
-    in_progress: {
-      label: 'Mark done',
-      status: 'done',
-      primary: true,
-    },
-    done: {
-      label: 'Reopen',
-      status: 'new',
-      primary: false,
-    },
-  }[o.status]
-
-  const statusColor =
-    {
-      new: 'bg-gold/20 text-gold-dark',
-      in_progress: 'bg-ink/10 text-ink',
-      done: 'bg-green/15 text-green',
-    }[o.status] || 'bg-line'
-
-  return (
-    <div
-      id={`order-${o.order_code}`}
-      className={[
-        'anim-in scroll-mt-24 rounded-xl border bg-white p-4',
-        o.status === 'new'
-          ? 'border-gold-dark border-l-4'
-          : 'border-line',
-        highlighted
-          ? 'ring-2 ring-gold-dark ring-offset-2 ring-offset-paper'
-          : '',
-      ].join(' ')}
-    >
-      {highlighted && (
-        <p className="mb-2 text-[13px] font-bold text-gold-dark">
-          Opened from the WhatsApp message
-        </p>
-      )}
-
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-[13px] text-muted">
-            #{o.order_code}, {formatTime(o.created_at)}
-          </div>
-
-          <p className="mt-0.5 flex items-center gap-1.5 text-base font-bold text-ink">
-            {Icon && (
-              <Icon size={16} className="text-muted" />
-            )}
-            {o.job}
-          </p>
-        </div>
-
-        <span
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-bold ${statusColor}`}
-        >
-          {o.status === 'new' && (
-            <span
-              className="live-dot"
-              aria-hidden="true"
-            />
-          )}
-          {o.status.replace('_', ' ')}
-        </span>
-      </div>
-
-      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        {details.map(([label, value]) => (
-          <div key={label} className="min-w-0">
-            <dt className="text-[13px] text-muted">
-              {label}
-            </dt>
-            <dd className="break-words font-semibold text-ink">
-              {value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-
-      {(isSafeUrl(o.ticket_link) ||
-        isSafeUrl(o.file_link) ||
-        isStored(o.ticket_link) ||
-        isStored(o.file_link)) && (
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold text-gold-dark">
-          {isSafeUrl(o.ticket_link) && (
-            <a
-              href={o.ticket_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center gap-1.5 underline"
-            >
-              <Icons.Receipt size={16} />
-              View ticket
-            </a>
-          )}
-
-          {isSafeUrl(o.file_link) && (
-            <a
-              href={o.file_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center gap-1.5 underline"
-            >
-              <Icons.Paperclip size={16} />
-              Download file
-            </a>
-          )}
-
-          {isStored(o.ticket_link) && (
-            <StoredFileLink
-              stored={o.ticket_link}
-              session={session}
-              label="View ticket"
-              Icon={Icons.Receipt}
-              onError={onFileError}
-            />
-          )}
-
-          {isStored(o.file_link) && (
-            <StoredFileLink
-              stored={o.file_link}
-              session={session}
-              label="Download file"
-              Icon={Icons.Paperclip}
-              onError={onFileError}
-            />
-          )}
-        </div>
-      )}
-
-      {nextAction && (
-        <button
-          onClick={() =>
-            onUpdateStatus(o.id, nextAction.status)
-          }
-          className={[
-            'mt-3 min-h-[44px] rounded-full px-5 text-sm font-bold',
-            nextAction.primary
-              ? 'bg-gold-dark text-white hover:bg-ink'
-              : 'border-[1.5px] border-line-strong text-ink hover:bg-ink/5',
-          ].join(' ')}
-        >
-          {nextAction.label}
-        </button>
-      )}
-    </div>
-  )
-}
-
 function PortfolioTab({ session, showToast }) {
-  const [title, setTitle] = useState('')
-  const [category, setCategory] = useState('standardPrint')
-  const [file, setFile] = useState(null)
-  const [progress, setProgress] = useState(0)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
-  const [items, setItems] = useState([])
-  const [loaded, setLoaded] = useState(false)
-
-  const load = async () => {
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/portfolio_items?select=*&order=display_order.asc,created_at.desc`,
-        {
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      )
-
-      if (!res.ok) throw new Error()
-
-      setItems(
-        (await res.json()).filter((i) =>
-          isSafeUrl(i.image_url)
-        )
-      )
-    } catch {
-      setItems([])
-    } finally {
-      setLoaded(true)
-    }
-  }
+  const [portfolio, setPortfolio] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    load()
+    const fetchPortfolio = async () => {
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/portfolio?select=*&order=created_at.desc`,
+          {
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          }
+        )
+
+        if (!res.ok) throw new Error('Failed to fetch')
+
+        const data = await res.json()
+        setPortfolio(Array.isArray(data) ? data : [])
+      } catch {
+        showToast("Couldn't load portfolio. Please refresh.", true)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPortfolio()
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const PUBLIC_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/portfolio/`
-
-  const uploadImage = (f) =>
-    new Promise((resolve, reject) => {
-      const id = crypto.randomUUID
-        ? crypto.randomUUID()
-        : `${Date.now()}`
-
-      const path = `${id}-${safeName(f.name)}`
-      const xhr = new XMLHttpRequest()
-
-      xhr.open(
-        'POST',
-        `${SUPABASE_URL}/storage/v1/object/portfolio/${path}`
-      )
-
-      xhr.setRequestHeader(
-        'apikey',
-        SUPABASE_ANON_KEY
-      )
-
-      xhr.setRequestHeader(
-        'Authorization',
-        `Bearer ${session.access_token}`
-      )
-
-      xhr.setRequestHeader('x-upsert', 'false')
-      xhr.setRequestHeader(
-        'Content-Type',
-        f.type || 'application/octet-stream'
-      )
-
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          setProgress(
-            Math.round((e.loaded / e.total) * 100)
-          )
-        }
-      })
-
-      xhr.onload = () =>
-        xhr.status >= 200 && xhr.status < 300
-          ? resolve(PUBLIC_PREFIX + path)
-          : reject(new Error())
-
-      xhr.onerror = () => reject(new Error())
-      xhr.send(f)
-    })
-
-  const submit = async () => {
-    setError('')
-
-    if (!file) {
-      setError('Please choose a photo first.')
-      return
-    }
-
-    setSubmitting(true)
-    setProgress(0)
-
-    try {
-      const imageUrl = await uploadImage(file)
-
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/portfolio_items`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${session.access_token}`,
-            Prefer: 'return=minimal',
-          },
-          body: JSON.stringify({
-            title,
-            category,
-            image_url: imageUrl,
-          }),
-        }
-      )
-
-      if (!res.ok) throw new Error()
-
-      setTitle('')
-      setFile(null)
-      load()
-    } catch {
-      setError(
-        'Something went wrong — please try again.'
-      )
-    } finally {
-      setSubmitting(false)
-    }
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <span className="print-loader">
+          <i />
+          <i />
+          <i />
+        </span>
+      </div>
+    )
   }
 
-  const remove = async (id) => {
-    const item = items.find((x) => x.id === id)
-
-    if (
-      item &&
-      item.image_url &&
-      item.image_url.startsWith(PUBLIC_PREFIX)
-    ) {
-      fetch(
-        `${SUPABASE_URL}/storage/v1/object/portfolio/${item.image_url.slice(
-          PUBLIC_PREFIX.length
-        )}`,
-        {
-          method: 'DELETE',
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      ).catch(() => {})
-    }
-
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/portfolio_items?id=eq.${id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${session.access_token}`,
-            Prefer: 'return=minimal',
-          },
-        }
-      )
-
-      if (!res.ok) {
-        showToast(
-          "Couldn't delete that item — please try again.",
-          true
-        )
-      }
-    } catch {
-      showToast(
-        "Couldn't delete that item — check your connection.",
-        true
-      )
-    }
-
-    load()
+  if (portfolio.length === 0) {
+    return (
+      <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-line bg-white p-5 text-center">
+        <p className="text-sm text-muted">No portfolio items yet.</p>
+      </div>
+    )
   }
 
   return (
-    <div>
-      <div className="rounded-xl border border-line bg-white p-5 shadow-card">
-        <p className="text-base font-bold text-ink">
-          Add a sample to the public portfolio
-        </p>
-
-        <p className="mt-1 text-[13px] leading-relaxed text-muted">
-          Only upload photos of your own completed work — not
-          designs, logos, or images that belong to someone else.
-          This goes on the public site.
-        </p>
-
-        <label className="mt-4 block text-sm font-bold text-ink">
-          Title
-        </label>
-
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Wedding invitation cards"
-          className="mt-1.5 w-full field"
-        />
-
-        <label className="mt-3 block text-sm font-bold text-ink">
-          Category
-        </label>
-
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="mt-1.5 w-full field"
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {portfolio.map((item) => (
+        <div
+          key={item.id}
+          className="group rounded-lg border border-line bg-white overflow-hidden hover:shadow-md transition"
         >
-          <option value="standardPrint">
-            Print &amp; Copy
-          </option>
-          <option value="card">Cards</option>
-          <option value="banner">Banners</option>
-          <option value="stickers">Stickers</option>
-          <option value="apparel">T-Shirts</option>
-          <option value="other">Other</option>
-        </select>
-
-        <label className="mt-3 block text-sm font-bold text-ink">
-          Photo
-        </label>
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) =>
-            setFile(e.target.files?.[0] || null)
-          }
-          className="mt-1.5 w-full text-[13px]"
-        />
-
-        {submitting && (
-          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-line">
-            <div
-              className="h-full bg-gold-dark transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        )}
-
-        {error && (
-          <p className="mt-2 text-sm font-semibold text-red">
-            {error}
-          </p>
-        )}
-
-        <button
-          onClick={submit}
-          disabled={submitting}
-          className="mt-4 w-full btn-primary rounded-lg"
-        >
-          {submitting
-            ? 'Uploading…'
-            : 'Add to Portfolio'}
-        </button>
-      </div>
-
-      <p className="mt-6 text-[13px] font-bold text-ink">
-        Current portfolio ({items.length} items)
-      </p>
-
-      {!loaded ? (
-        <p className="mt-2 text-[13px] text-muted">
-          Loading…
-        </p>
-      ) : items.length === 0 ? (
-        <p className="mt-2 text-[13px] text-muted">
-          No portfolio items yet — add your first one above.
-        </p>
-      ) : (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="overflow-hidden rounded-lg border border-line bg-white"
-            >
+          {item.image_url && (
+            <div className="aspect-square overflow-hidden bg-paper">
               <img
                 src={item.image_url}
-                alt={item.title || ''}
-                className="aspect-square w-full object-cover"
+                alt={item.title || 'Portfolio item'}
+                className="h-full w-full object-cover group-hover:scale-105 transition"
               />
-
-              <div className="p-2.5">
-                <p className="truncate text-sm font-semibold text-ink">
-                  {item.title || '(untitled)'}
-                </p>
-
-                <button
-                  onClick={() => remove(item.id)}
-                  className="mt-1 flex items-center gap-1 text-[13px] font-bold text-red"
-                >
-                  <Icons.Trash2 size={11} />
-                  Delete
-                </button>
-              </div>
             </div>
-          ))}
+          )}
+
+          <div className="p-4">
+            <h4 className="font-bold text-ink mb-1">{item.title || 'Untitled'}</h4>
+
+            {item.description && (
+              <p className="text-sm text-muted line-clamp-2">{item.description}</p>
+            )}
+          </div>
         </div>
-      )}
+      ))}
     </div>
   )
 }
