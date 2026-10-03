@@ -480,7 +480,7 @@ function DashboardScreen({ session, onExpire, onLogout }) {
           ))}
         </div>
 
-        {tab === 'orders' && (
+        {tab === 'orders'? (
           <OrdersTab
             orders={
               filter === 'all'
