@@ -117,48 +117,47 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
       const normalizedUrl = SUPABASE_URL.replace(/\/$/, '')
       const authEndpoint = `${normalizedUrl}/auth/v1/token?grant_type=password`
 
-      const res = await fetch(
-        authEndpoint,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({
-            email: trimmedEmail,
-            password,
-          }),
-        }
-      )
+      const res = await fetch(authEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          email: trimmedEmail,
+          password,
+        }),
+      })
 
       const data = await res.json()
 
-      // Handle HTTP status codes
       if (!res.ok) {
         console.error(`Supabase login error (${res.status}):`, data)
 
         let errorMessage = 'Login failed'
 
         if (res.status === 400) {
-          // Invalid credentials
           errorMessage =
-            data.error_description || data.msg || data.message || 'Invalid email or password.'
+            data.error_description ||
+            data.msg ||
+            data.message ||
+            'Invalid email or password.'
         } else if (res.status === 401) {
-          // API key rejected
           errorMessage =
             'Supabase rejected the API key. Check VITE_SUPABASE_ANON_KEY in Netlify.'
         } else if (res.status === 429) {
-          // Rate limited
-          errorMessage = 'Too many login attempts. Please wait a while and try again.'
+          errorMessage =
+            'Too many login attempts. Please wait a while and try again.'
         } else if (res.status === 404) {
-          // Path error
           errorMessage =
             'Supabase endpoint not found (404). Check your VITE_SUPABASE_URL format in Netlify.'
         } else {
-          // Other errors
           const supabaseMsg =
-            data.error_description || data.msg || data.message || data.error
+            data.error_description ||
+            data.msg ||
+            data.message ||
+            data.error
+
           errorMessage = supabaseMsg
             ? `Error ${res.status}: ${supabaseMsg}`
             : `Error ${res.status}: Login failed`
@@ -167,7 +166,6 @@ function LoginScreen({ sessionExpired, onLoggedIn }) {
         throw new Error(errorMessage)
       }
 
-      // Verify tokens exist
       if (!data.access_token || !data.refresh_token) {
         console.error('Unexpected Supabase response:', data)
         throw new Error('Supabase did not return a valid login session.')
@@ -364,15 +362,18 @@ function DashboardScreen({ session, onExpire, onLogout }) {
       const order = orders.find((o) => o.id === openCode)
 
       if (order) {
-        const element = document.querySelector(`[data-order-id="${openCode}"]`)
+        const element = document.querySelector(
+          `[data-order-id="${openCode}"]`
+        )
 
         setTimeout(
           () =>
             element?.scrollIntoView({
               behavior: 'smooth',
               block: 'center',
-            })
-        , 100)
+            }),
+          100
+        )
       } else {
         showToast(
           `Order #${openCode} isn't here yet. It may still be arriving.`,
@@ -456,31 +457,62 @@ function DashboardScreen({ session, onExpire, onLogout }) {
       </div>
 
       <div className="mx-auto max-w-4xl space-y-5 px-5 py-6 sm:px-8 sm:py-8">
-        <div className="flex flex-wrap gap-2">
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`px-4 py-2 text-sm font-bold rounded-full transition ${
-                filter === f.key
-                  ? 'bg-ink text-gold'
-                  : 'bg-white border border-line text-ink hover:border-ink'
-              }`}
-            >
-              {f.label}
+        {/* Dashboard navigation */}
+        <div className="flex flex-wrap gap-2 border-b border-line pb-4">
+          <button
+            type="button"
+            onClick={() => setTab('orders')}
+            className={`rounded-full px-5 py-2.5 text-sm font-bold transition ${
+              tab === 'orders'
+                ? 'bg-ink text-gold'
+                : 'border border-line bg-white text-ink hover:border-ink'
+            }`}
+          >
+            Orders
+          </button>
 
-              <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/30 text-xs font-semibold">
-                {filter === f.key
-                  ? orders.length
-                  : f.key === 'all'
-                    ? orders.length
-                    : orders.filter((o) => o.status === f.key).length}
-              </span>
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={() => setTab('portfolio')}
+            className={`rounded-full px-5 py-2.5 text-sm font-bold transition ${
+              tab === 'portfolio'
+                ? 'bg-ink text-gold'
+                : 'border border-line bg-white text-ink hover:border-ink'
+            }`}
+          >
+            Portfolio
+          </button>
         </div>
 
-        {tab === 'orders'? (
+        {/* Order filters */}
+        {tab === 'orders' && (
+          <div className="flex flex-wrap gap-2">
+            {FILTERS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`px-4 py-2 text-sm font-bold rounded-full transition ${
+                  filter === f.key
+                    ? 'bg-ink text-gold'
+                    : 'bg-white border border-line text-ink hover:border-ink'
+                }`}
+              >
+                {f.label}
+
+                <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/30 text-xs font-semibold">
+                  {filter === f.key
+                    ? orders.length
+                    : f.key === 'all'
+                      ? orders.length
+                      : orders.filter((o) => o.status === f.key).length}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Selected dashboard section */}
+        {tab === 'orders' ? (
           <OrdersTab
             orders={
               filter === 'all'
@@ -534,7 +566,15 @@ const FILTERS = [
   { key: 'completed', label: 'Completed' },
 ]
 
-function OrdersTab({ orders, counts, updatedAt, onUpdateStatus, session, highlightCode, onFileError }) {
+function OrdersTab({
+  orders,
+  counts,
+  updatedAt,
+  onUpdateStatus,
+  session,
+  highlightCode,
+  onFileError,
+}) {
   if (orders.length === 0) {
     return (
       <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-line bg-white p-5 text-center">
@@ -564,7 +604,8 @@ function OrderCard({ order, onUpdateStatus, session, onFileError }) {
   const toggleStatus = async () => {
     setUpdating(true)
 
-    const newStatus = order.status === 'completed' ? 'pending' : 'completed'
+    const newStatus =
+      order.status === 'completed' ? 'pending' : 'completed'
 
     await onUpdateStatus(order.id, newStatus)
 
@@ -592,7 +633,10 @@ function OrderCard({ order, onUpdateStatus, session, onFileError }) {
 
           <div className="mt-2 space-y-1 text-sm text-muted">
             <p>
-              <span className="font-semibold text-ink">{order.copies || 1}</span> copies
+              <span className="font-semibold text-ink">
+                {order.copies || 1}
+              </span>{' '}
+              copies
               {order.color && ` · ${order.color}`}
               {order.paper && ` · ${order.paper}`}
               {order.finishing && ` · ${order.finishing}`}
@@ -600,7 +644,10 @@ function OrderCard({ order, onUpdateStatus, session, onFileError }) {
 
             {order.name && (
               <p>
-                Ordered by <span className="font-semibold text-ink">{order.name}</span>
+                Ordered by{' '}
+                <span className="font-semibold text-ink">
+                  {order.name}
+                </span>
               </p>
             )}
 
@@ -626,14 +673,18 @@ function OrderCard({ order, onUpdateStatus, session, onFileError }) {
             disabled={updating}
             className="px-2 py-1 text-xs font-bold text-blue hover:text-blue-dark disabled:opacity-50"
           >
-            {order.status === 'completed' ? 'Mark pending' : 'Mark complete'}
+            {order.status === 'completed'
+              ? 'Mark pending'
+              : 'Mark complete'}
           </button>
         </div>
       </div>
 
       {displayFiles.length > 0 && (
         <div className="border-t border-line pt-3 mt-3">
-          <div className="text-xs font-bold text-muted mb-2">Files:</div>
+          <div className="text-xs font-bold text-muted mb-2">
+            Files:
+          </div>
 
           <div className="space-y-2">
             {displayFiles.map((file, idx) => (
@@ -710,112 +761,115 @@ function StoredFileLink({
     </button>
   )
 }
+
 function PortfolioTab({ session, showToast }) {
-  const [items, setItems] = useState([]);
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("standardPrint");
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [deleting, setDeleting] = useState(null);
-  const [message, setMessage] = useState("");
+  const [items, setItems] = useState([])
+  const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('standardPrint')
+  const [file, setFile] = useState(null)
+  const [preview, setPreview] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting] = useState(null)
+  const [message, setMessage] = useState('')
 
   const headers = {
     apikey: SUPABASE_ANON_KEY,
     Authorization: `Bearer ${session.access_token}`,
-  };
+  }
 
   async function loadItems() {
     try {
-      setLoading(true);
+      setLoading(true)
 
       const response = await fetch(
         `${SUPABASE_URL}/rest/v1/portfolio_items?select=*&order=display_order.asc,created_at.desc`,
         { headers }
-      );
+      )
 
       if (!response.ok) {
-        throw new Error("Could not load portfolio items.");
+        throw new Error('Could not load portfolio items.')
       }
 
-      setItems(await response.json());
+      setItems(await response.json())
     } catch (error) {
-      setMessage(error.message);
+      setMessage(error.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    loadItems();
-  }, []);
+    loadItems()
+  }, [])
 
   function handleFileChange(event) {
-    const selectedFile = event.target.files?.[0];
+    const selectedFile = event.target.files?.[0]
 
-    if (!selectedFile) return;
+    if (!selectedFile) return
 
-    if (!selectedFile.type.startsWith("image/")) {
-      setMessage("Please select an image file.");
-      return;
+    if (!selectedFile.type.startsWith('image/')) {
+      setMessage('Please select an image file.')
+      return
     }
 
     if (selectedFile.size > 8 * 1024 * 1024) {
-      setMessage("Please choose an image smaller than 8 MB.");
-      return;
+      setMessage('Please choose an image smaller than 8 MB.')
+      return
     }
 
-    setFile(selectedFile);
-    setPreview(URL.createObjectURL(selectedFile));
-    setMessage("");
+    setFile(selectedFile)
+    setPreview(URL.createObjectURL(selectedFile))
+    setMessage('')
   }
 
   async function handleUpload(event) {
-    event.preventDefault();
+    event.preventDefault()
 
     if (!title.trim() || !file) {
-      setMessage("Enter a title and select an image.");
-      return;
+      setMessage('Enter a title and select an image.')
+      return
     }
 
-    let storagePath = "";
+    let storagePath = ''
 
     try {
-      setUploading(true);
-      setMessage("");
+      setUploading(true)
+      setMessage('')
 
-      const cleanFileName = safeName(file.name) || "portfolio-image";
-      storagePath = `${Date.now()}-${cleanFileName}`;
+      const cleanFileName = safeName(file.name) || 'portfolio-image'
+      storagePath = `${Date.now()}-${cleanFileName}`
 
       const uploadResponse = await fetch(
         `${SUPABASE_URL}/storage/v1/object/portfolio/${storagePath}`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
             ...headers,
-            "Content-Type": file.type,
-            "x-upsert": "false",
+            'Content-Type': file.type,
+            'x-upsert': 'false',
           },
           body: file,
         }
-      );
+      )
 
       if (!uploadResponse.ok) {
-        throw new Error("Image upload failed. Check your Storage permissions.");
+        throw new Error(
+          'Image upload failed. Check your Storage permissions.'
+        )
       }
 
       const imageUrl =
-        `${SUPABASE_URL}/storage/v1/object/public/portfolio/${storagePath}`;
+        `${SUPABASE_URL}/storage/v1/object/public/portfolio/${storagePath}`
 
       const saveResponse = await fetch(
         `${SUPABASE_URL}/rest/v1/portfolio_items`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
             ...headers,
-            "Content-Type": "application/json",
-            Prefer: "return=representation",
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation',
           },
           body: JSON.stringify({
             title: title.trim(),
@@ -823,97 +877,101 @@ function PortfolioTab({ session, showToast }) {
             image_url: imageUrl,
           }),
         }
-      );
+      )
 
       if (!saveResponse.ok) {
         await fetch(
           `${SUPABASE_URL}/storage/v1/object/portfolio`,
           {
-            method: "DELETE",
+            method: 'DELETE',
             headers: {
               ...headers,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({ prefixes: [storagePath] }),
           }
-        );
+        )
 
-        throw new Error("Image uploaded, but saving the portfolio item failed.");
+        throw new Error(
+          'Image uploaded, but saving the portfolio item failed.'
+        )
       }
 
-      setTitle("");
-      setCategory("standardPrint");
-      setFile(null);
-      setPreview("");
-      setMessage("Portfolio item added successfully.");
-      await loadItems();
+      setTitle('')
+      setCategory('standardPrint')
+      setFile(null)
+      setPreview('')
+      setMessage('Portfolio item added successfully.')
+      await loadItems()
     } catch (error) {
-      setMessage(error.message);
+      setMessage(error.message)
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
   }
 
   async function handleDelete(item) {
     const confirmed = window.confirm(
       `Delete "${item.title}" from the portfolio?`
-    );
+    )
 
-    if (!confirmed) return;
+    if (!confirmed) return
 
     try {
-      setDeleting(item.id);
-      setMessage("");
+      setDeleting(item.id)
+      setMessage('')
 
       const deleteResponse = await fetch(
         `${SUPABASE_URL}/rest/v1/portfolio_items?id=eq.${encodeURIComponent(item.id)}`,
         {
-          method: "DELETE",
+          method: 'DELETE',
           headers,
         }
-      );
+      )
 
       if (!deleteResponse.ok) {
-        throw new Error("Could not delete this portfolio item.");
+        throw new Error('Could not delete this portfolio item.')
       }
 
-      const marker = "/storage/v1/object/public/portfolio/";
-      const imageUrl = item.image_url || "";
+      const marker = '/storage/v1/object/public/portfolio/'
+      const imageUrl = item.image_url || ''
 
       if (imageUrl.includes(marker)) {
         const storagePath = decodeURIComponent(
-          imageUrl.split(marker)[1].split("?")[0]
-        );
+          imageUrl.split(marker)[1].split('?')[0]
+        )
 
         await fetch(
           `${SUPABASE_URL}/storage/v1/object/portfolio`,
           {
-            method: "DELETE",
+            method: 'DELETE',
             headers: {
               ...headers,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({ prefixes: [storagePath] }),
           }
-        );
+        )
       }
 
       setItems((current) =>
         current.filter((entry) => entry.id !== item.id)
-      );
+      )
 
-      setMessage("Portfolio item deleted.");
+      setMessage('Portfolio item deleted.')
     } catch (error) {
-      setMessage(error.message);
+      setMessage(error.message)
     } finally {
-      setDeleting(null);
+      setDeleting(null)
     }
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-ink">Portfolio Management</h2>
+        <h2 className="text-2xl font-bold text-ink">
+          Portfolio Management
+        </h2>
         <p className="mt-1 text-sm text-ink/60">
           Upload and manage the work displayed on your public portfolio.
         </p>
@@ -923,7 +981,9 @@ function PortfolioTab({ session, showToast }) {
         onSubmit={handleUpload}
         className="space-y-4 rounded-2xl border border-line bg-white p-5"
       >
-        <h3 className="text-lg font-semibold text-ink">Add portfolio item</h3>
+        <h3 className="text-lg font-semibold text-ink">
+          Add portfolio item
+        </h3>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-ink">
@@ -982,7 +1042,7 @@ function PortfolioTab({ session, showToast }) {
           disabled={uploading}
           className="rounded-lg bg-ink px-5 py-3 font-semibold text-white disabled:opacity-50"
         >
-          {uploading ? "Uploading..." : "Upload to Portfolio"}
+          {uploading ? 'Uploading...' : 'Upload to Portfolio'}
         </button>
 
         {message && (
@@ -996,7 +1056,9 @@ function PortfolioTab({ session, showToast }) {
         </h3>
 
         {loading ? (
-          <p className="text-sm text-ink/60">Loading portfolio...</p>
+          <p className="text-sm text-ink/60">
+            Loading portfolio...
+          </p>
         ) : items.length === 0 ? (
           <p className="rounded-xl border border-line p-6 text-center text-ink/60">
             No portfolio items yet.
@@ -1016,8 +1078,12 @@ function PortfolioTab({ session, showToast }) {
 
                 <div className="space-y-3 p-4">
                   <div>
-                    <h4 className="font-semibold text-ink">{item.title}</h4>
-                    <p className="text-xs text-ink/60">{item.category}</p>
+                    <h4 className="font-semibold text-ink">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-ink/60">
+                      {item.category}
+                    </p>
                   </div>
 
                   <button
@@ -1026,7 +1092,7 @@ function PortfolioTab({ session, showToast }) {
                     disabled={deleting === item.id}
                     className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 disabled:opacity-50"
                   >
-                    {deleting === item.id ? "Deleting..." : "Delete"}
+                    {deleting === item.id ? 'Deleting...' : 'Delete'}
                   </button>
                 </div>
               </div>
@@ -1035,5 +1101,5 @@ function PortfolioTab({ session, showToast }) {
         )}
       </div>
     </div>
-  );
+  )
 }
