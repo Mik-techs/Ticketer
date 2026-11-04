@@ -710,86 +710,330 @@ function StoredFileLink({
     </button>
   )
 }
-
 function PortfolioTab({ session, showToast }) {
-  const [portfolio, setPortfolio] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [items, setItems] = useState([]);
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("standardPrint");
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(null);
+  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const fetchPortfolio = async () => {
-      try {
-        const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/portfolio?select=*&order=created_at.desc`,
-          {
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          }
-        )
+  const headers = {
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${session.access_token}`,
+  };
 
-        if (!res.ok) throw new Error('Failed to fetch')
+  async function loadItems() {
+    try {
+      setLoading(true);
 
-        const data = await res.json()
-        setPortfolio(Array.isArray(data) ? data : [])
-      } catch {
-        showToast("Couldn't load portfolio. Please refresh.", true)
-      } finally {
-        setLoading(false)
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/portfolio_items?select=*&order=display_order.asc,created_at.desc`,
+        { headers }
+      );
+
+      if (!response.ok) {
+        throw new Error("Could not load portfolio items.");
       }
+
+      setItems(await response.json());
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
     }
-
-    fetchPortfolio()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="print-loader">
-          <i />
-          <i />
-          <i />
-        </span>
-      </div>
-    )
   }
 
-  if (portfolio.length === 0) {
-    return (
-      <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-line bg-white p-5 text-center">
-        <p className="text-sm text-muted">No portfolio items yet.</p>
-      </div>
-    )
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  function handleFileChange(event) {
+    const selectedFile = event.target.files?.[0];
+
+    if (!selectedFile) return;
+
+    if (!selectedFile.type.startsWith("image/")) {
+      setMessage("Please select an image file.");
+      return;
+    }
+
+    if (selectedFile.size > 8 * 1024 * 1024) {
+      setMessage("Please choose an image smaller than 8 MB.");
+      return;
+    }
+
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
+    setMessage("");
+  }
+
+  async function handleUpload(event) {
+    event.preventDefault();
+
+    if (!title.trim() || !file) {
+      setMessage("Enter a title and select an image.");
+      return;
+    }
+
+    let storagePath = "";
+
+    try {
+      setUploading(true);
+      setMessage("");
+
+      const cleanFileName = safeName(file.name) || "portfolio-image";
+      storagePath = `${Date.now()}-${cleanFileName}`;
+
+      const uploadResponse = await fetch(
+        `${SUPABASE_URL}/storage/v1/object/portfolio/${storagePath}`,
+        {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": file.type,
+            "x-upsert": "false",
+          },
+          body: file,
+        }
+      );
+
+      if (!uploadResponse.ok) {
+        throw new Error("Image upload failed. Check your Storage permissions.");
+      }
+
+      const imageUrl =
+        `${SUPABASE_URL}/storage/v1/object/public/portfolio/${storagePath}`;
+
+      const saveResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/portfolio_items`,
+        {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify({
+            title: title.trim(),
+            category,
+            image_url: imageUrl,
+          }),
+        }
+      );
+
+      if (!saveResponse.ok) {
+        await fetch(
+          `${SUPABASE_URL}/storage/v1/object/portfolio`,
+          {
+            method: "DELETE",
+            headers: {
+              ...headers,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prefixes: [storagePath] }),
+          }
+        );
+
+        throw new Error("Image uploaded, but saving the portfolio item failed.");
+      }
+
+      setTitle("");
+      setCategory("standardPrint");
+      setFile(null);
+      setPreview("");
+      setMessage("Portfolio item added successfully.");
+      await loadItems();
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleDelete(item) {
+    const confirmed = window.confirm(
+      `Delete "${item.title}" from the portfolio?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeleting(item.id);
+      setMessage("");
+
+      const deleteResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/portfolio_items?id=eq.${encodeURIComponent(item.id)}`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      );
+
+      if (!deleteResponse.ok) {
+        throw new Error("Could not delete this portfolio item.");
+      }
+
+      const marker = "/storage/v1/object/public/portfolio/";
+      const imageUrl = item.image_url || "";
+
+      if (imageUrl.includes(marker)) {
+        const storagePath = decodeURIComponent(
+          imageUrl.split(marker)[1].split("?")[0]
+        );
+
+        await fetch(
+          `${SUPABASE_URL}/storage/v1/object/portfolio`,
+          {
+            method: "DELETE",
+            headers: {
+              ...headers,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prefixes: [storagePath] }),
+          }
+        );
+      }
+
+      setItems((current) =>
+        current.filter((entry) => entry.id !== item.id)
+      );
+
+      setMessage("Portfolio item deleted.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setDeleting(null);
+    }
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {portfolio.map((item) => (
-        <div
-          key={item.id}
-          className="group rounded-lg border border-line bg-white overflow-hidden hover:shadow-md transition"
-        >
-          {item.image_url && (
-            <div className="aspect-square overflow-hidden bg-paper">
-              <img
-                src={item.image_url}
-                alt={item.title || 'Portfolio item'}
-                className="h-full w-full object-cover group-hover:scale-105 transition"
-              />
-            </div>
-          )}
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-ink">Portfolio Management</h2>
+        <p className="mt-1 text-sm text-ink/60">
+          Upload and manage the work displayed on your public portfolio.
+        </p>
+      </div>
 
-          <div className="p-4">
-            <h4 className="font-bold text-ink mb-1">{item.title || 'Untitled'}</h4>
+      <form
+        onSubmit={handleUpload}
+        className="space-y-4 rounded-2xl border border-line bg-white p-5"
+      >
+        <h3 className="text-lg font-semibold text-ink">Add portfolio item</h3>
 
-            {item.description && (
-              <p className="text-sm text-muted line-clamp-2">{item.description}</p>
-            )}
-          </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-ink">
+            Project title
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Enter project title"
+            className="w-full rounded-lg border border-line p-3 outline-none focus:border-ink"
+            required
+          />
         </div>
-      ))}
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-ink">
+            Category
+          </label>
+          <select
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className="w-full rounded-lg border border-line bg-white p-3"
+          >
+            <option value="standardPrint">Standard Print</option>
+            <option value="card">Business Cards</option>
+            <option value="banner">Banners</option>
+            <option value="stickers">Stickers</option>
+            <option value="apparel">Apparel</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-ink">
+            Project image
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full rounded-lg border border-line p-3 text-sm"
+          />
+        </div>
+
+        {preview && (
+          <img
+            src={preview}
+            alt="Selected portfolio preview"
+            className="max-h-64 w-full rounded-xl object-contain"
+          />
+        )}
+
+        <button
+          type="submit"
+          disabled={uploading}
+          className="rounded-lg bg-ink px-5 py-3 font-semibold text-white disabled:opacity-50"
+        >
+          {uploading ? "Uploading..." : "Upload to Portfolio"}
+        </button>
+
+        {message && (
+          <p className="text-sm text-ink/70">{message}</p>
+        )}
+      </form>
+
+      <div>
+        <h3 className="mb-4 text-lg font-semibold text-ink">
+          Existing portfolio items ({items.length})
+        </h3>
+
+        {loading ? (
+          <p className="text-sm text-ink/60">Loading portfolio...</p>
+        ) : items.length === 0 ? (
+          <p className="rounded-xl border border-line p-6 text-center text-ink/60">
+            No portfolio items yet.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="overflow-hidden rounded-xl border border-line bg-white"
+              >
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="h-48 w-full object-cover"
+                />
+
+                <div className="space-y-3 p-4">
+                  <div>
+                    <h4 className="font-semibold text-ink">{item.title}</h4>
+                    <p className="text-xs text-ink/60">{item.category}</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(item)}
+                    disabled={deleting === item.id}
+                    className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 disabled:opacity-50"
+                  >
+                    {deleting === item.id ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
